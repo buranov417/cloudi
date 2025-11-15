@@ -1,27 +1,45 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cloudi — Telegram Cloud</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Cloudi MVP</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .box { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px; }
+    button { padding: 10px 20px; font-size: 16px; }
+    .result { margin-top: 20px; font-size: 18px; font-weight: bold; }
+  </style>
 </head>
 <body>
-  <div class="app">
-    <h1>🌤 Cloudi</h1>
-    <p>Твое персональное хранилище в Telegram.</p>
+  <div class="box">
+    <h2>Cloudi — искусственная облачная система</h2>
 
-    <div class="menu">
-      <button onclick="openSection('gallery')">📸 Галерея</button>
-      <button onclick="openSection('files')">📁 Файлы</button>
-      <button onclick="openSection('audio')">🎵 Аудио</button>
-    </div>
+    <label>Введите уровень нагрузки (интерации):</label>
+    <input id="loadInput" type="number" style="width: 100%; margin-top: 10px; padding: 10px;" />
 
-    <div id="content">
-      <p>Выбери раздел, чтобы загрузить или просмотреть файлы.</p>
-    </div>
+    <button onclick="startTest()" style="margin-top: 20px;">Старт</button>
+
+    <div class="result" id="resultBox"></div>
   </div>
 
-  <script src="script.js"></script>
+<script>
+function startTest() {
+  const load = Number(document.getElementById("loadInput").value);
+  const startTime = performance.now();
+
+  let processed = 0;
+  for (let i = 0; i < load; i++) {
+    processed++;
+  }
+
+  const endTime = performance.now();
+  const duration = (endTime - startTime).toFixed(2);
+
+  document.getElementById("resultBox").innerHTML =
+    "Обработано: " + processed.toLocaleString() + " интераций<br>" +
+    "Время обработки: " + duration + " мс<br>" +
+    "Пропускная способность: " + (processed / (duration / 1000)).toLocaleString() + " инт/сек";
+}
+</script>
 </body>
 </html>
