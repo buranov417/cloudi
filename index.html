@@ -1,45 +1,117 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cloudi MVP</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    .box { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px; }
-    button { padding: 10px 20px; font-size: 16px; }
-    .result { margin-top: 20px; font-size: 18px; font-weight: bold; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloudi MVP Simulator</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f6fa; margin: 0; padding: 0; }
+  .container { max-width: 800px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+  h1 { text-align: center; color: #2f3640; }
+  input[type=number] { width: 100%; padding: 10px; font-size: 18px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  button { width: 100%; padding: 15px; font-size: 18px; background: #273c75; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background: #40739e; }
+  .result { margin-top: 20px; background: #f1f2f6; padding: 15px; border-radius: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ccc; }
+  .progress-bar { background: #dcdde1; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+  .progress { height: 20px; background: #44bd32; width: 0%; text-align: center; color: #fff; line-height: 20px; }
+</style>
 </head>
 <body>
-  <div class="box">
-    <h2>Cloudi — искусственная облачная система</h2>
 
-    <label>Введите уровень нагрузки (интерации):</label>
-    <input id="loadInput" type="number" style="width: 100%; margin-top: 10px; padding: 10px;" />
+<div class="container">
+  <h1>Cloudi MVP Simulator</h1>
+  <label>Введите количество интераций:</label>
+  <input type="number" id="iterations" value="1000000000">
+  <button onclick="startSimulation()">Старт</button>
 
-    <button onclick="startTest()" style="margin-top: 20px;">Старт</button>
+  <div class="result" id="output" style="display:none;">
+    <h2>Результаты обработки</h2>
+    <p id="baselineSpeed"></p>
+    <p id="requiredNodes"></p>
+    <p id="requiredDataCenters"></p>
+    <p id="processingTime"></p>
 
-    <div class="result" id="resultBox"></div>
+    <h3>Финансовый расчёт</h3>
+    <table>
+      <tr><th>Компонент</th><th>Цена (в месяц)</th></tr>
+      <tr><td>Одна нода</td><td>$420</td></tr>
+      <tr><td>Дата-центр (4 ноды)</td><td id="dataCenterCost">$5,200</td></tr>
+      <tr><td>Сетевые расходы</td><td>$800</td></tr>
+      <tr><td>Мониторинг</td><td>$120</td></tr>
+      <tr><td>Авто-масштабирование</td><td>$60</td></tr>
+      <tr><td><b>ИТОГО / месяц</b></td><td id="totalCost">$11,800</td></tr>
+      <tr><td><b>ИТОГО / год</b></td><td id="totalYear">$141,600</td></tr>
+    </table>
+
+    <h3>Доход Cloudi</h3>
+    <p id="revenue"></p>
+
+    <h3>Прогресс обработки</h3>
+    <div class="progress-bar"><div class="progress" id="progress">0%</div></div>
   </div>
+</div>
 
 <script>
-function startTest() {
-  const load = Number(document.getElementById("loadInput").value);
-  const startTime = performance.now();
+function startSimulation() {
+  const iterations = Number(document.getElementById("iterations").value);
+  const output = document.getElementById("output");
+  output.style.display = "block";
 
-  let processed = 0;
-  for (let i = 0; i < load; i++) {
-    processed++;
-  }
+  // Baseline: считаем 5 млн интераций реально
+  const testCount = 5000000;
+  const start = performance.now();
+  for(let i=0;i<testCount;i++) {}
+  const end = performance.now();
+  const baselineSpeed = testCount / ((end-start)/1000); // инт/сек
 
-  const endTime = performance.now();
-  const duration = (endTime - startTime).toFixed(2);
+  document.getElementById("baselineSpeed").innerText = `Реальная скорость вашего устройства: ${baselineSpeed.toLocaleString()} инт/сек`;
 
-  document.getElementById("resultBox").innerHTML =
-    "Обработано: " + processed.toLocaleString() + " интераций<br>" +
-    "Время обработки: " + duration + " мс<br>" +
-    "Пропускная способность: " + (processed / (duration / 1000)).toLocaleString() + " инт/сек";
+  // Cloudi масштабирование
+  const cloudMultiplier = 200; // количество виртуальных нод
+  const cloudSpeed = baselineSpeed * cloudMultiplier;
+
+  // Расчёт нод и дата-центров
+  const nodeCapacity = baselineSpeed; // 1 нода = baseline
+  const requiredNodes = Math.ceil(iterations / nodeCapacity);
+  const nodesPerDC = 4;
+  const requiredDataCenters = Math.ceil(requiredNodes / nodesPerDC);
+
+  document.getElementById("requiredNodes").innerText = `Нужные ноды: ${requiredNodes}`;
+  document.getElementById("requiredDataCenters").innerText = `Нужные дата-центры: ${requiredDataCenters}`;
+
+  // Время обработки
+  const processingTimeSec = iterations / cloudSpeed;
+  document.getElementById("processingTime").innerText = `Время обработки: ${processingTimeSec.toFixed(2)} сек`;
+
+  // Финансовый расчёт
+  const costPerNode = 420;
+  const dataCenterCost = nodesPerDC * costPerNode;
+  const totalCost = dataCenterCost + 800 + 120 + 60;
+  const totalYear = totalCost * 12;
+
+  document.getElementById("dataCenterCost").innerText = `$${dataCenterCost.toLocaleString()}`;
+  document.getElementById("totalCost").innerText = `$${totalCost.toLocaleString()}`;
+  document.getElementById("totalYear").innerText = `$${totalYear.toLocaleString()}`;
+
+  // Доход Cloudi
+  const pricePer1000Ops = 0.002;
+  const revenueOneRun = (iterations/1000)*pricePer1000Ops;
+  const revenue100Clients = revenueOneRun*100;
+  document.getElementById("revenue").innerText = `Цена за обработку: $${revenueOneRun.toFixed(2)}. Потенциальная годовая выручка на 100 клиентов: $${revenue100Clients.toLocaleString()}`;
+
+  // Прогресс анимация
+  const progressBar = document.getElementById("progress");
+  let progress = 0;
+  const interval = setInterval(()=>{
+    progress += 1;
+    if(progress>100) clearInterval(interval);
+    progressBar.style.width = `${progress}%`;
+    progressBar.innerText = `${progress}%`;
+  }, processingTimeSec*10); // масштабируем
 }
 </script>
+
 </body>
 </html>
