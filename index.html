@@ -1,588 +1,492 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Cloudi — Full Cloud MVP (Investor Demo)</title>
-
+<title>Cloudi — Minimal Realistic MVP</title>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <style>
-:root{
-  --bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#0b63c6;
-  --ok:#16a34a;--warn:#f59e0b;--danger:#ef4444;
-  --max-width:1150px;
-}
-*{box-sizing:border-box}
-body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:16px;color:#0f172a;-webkit-font-smoothing:antialiased}
-.container{max-width:var(--max-width);margin:0 auto;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 12px 40px rgba(2,6,23,0.06)}
-h1{margin:0 0 6px;font-size:20px;text-align:center}
-.lead{color:var(--muted);text-align:center;margin-bottom:12px}
-.grid{display:flex;gap:12px;flex-wrap:wrap}
-.col{flex:1;min-width:260px}
-.card{background:#fbfdff;border:1px solid #eef3fb;padding:12px;border-radius:8px}
-label{display:block;font-weight:700;margin-bottom:6px}
-input[type=number],input[type=text],select{width:100%;padding:10px;border-radius:8px;border:1px solid #d6dce6;font-size:15px}
-.button{background:var(--accent);color:#fff;padding:10px;border-radius:8px;border:0;cursor:pointer;width:100%;font-weight:700}
-.small{font-size:13px;color:var(--muted)}
-.muted{color:var(--muted);font-size:13px}
-.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef3fb}
-.nodes-wrap{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px}
-.dc{width:120px;border-radius:8px;padding:8px;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid #e6eefb;text-align:center}
-.node{height:14px;background:#e6eefb;border-radius:6px;margin:6px 0;transition:background .25s}
-.node.busy{background:var(--ok)}
-.progressOuter{background:#eef3fb;height:18px;border-radius:10px;overflow:hidden;margin-top:8px}
-.progressInner{height:100%;background:var(--ok);width:0%;text-align:center;color:#fff;line-height:18px;font-size:12px}
-.log{max-height:240px;overflow:auto;background:#0a0f16;color:#fff;padding:8px;border-radius:6px;font-size:13px;white-space:pre-wrap}
-.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
-.table{width:100%;border-collapse:collapse;margin-top:8px}
-.table th,.table td{padding:6px;border-bottom:1px solid #eef3fb;text-align:left;font-size:14px}
-.footer{margin-top:12px;text-align:center;color:var(--muted);font-size:13px}
-.btn-small{padding:6px 8px;border-radius:6px;border:0;background:#222;color:#fff;cursor:pointer}
-.lang-toggle{position:absolute;right:18px;top:18px}
-@media(max-width:820px){.grid,.row{flex-direction:column}}
-.right{text-align:right}
+  :root{--bg:#fafbfc;--card:#fff;--muted:#6b7280;--accent:#0b63c6;--ok:#16a34a}
+  body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:14px;color:#0f172a}
+  .wrap{max-width:1000px;margin:0 auto;background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 30px rgba(2,6,23,0.06)}
+  h1{margin:0 0 6px;font-size:18px}
+  .muted{color:var(--muted);font-size:13px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+  .col{flex:1;min-width:240px}
+  label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
+  input[type=number],select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e3e8ef;font-size:14px}
+  button{padding:9px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  .card{background:#fff;border:1px solid #eef3fb;padding:10px;border-radius:8px}
+  .kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef3fb;font-size:14px}
+  .nodes{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+  .dc{width:110px;border-radius:8px;padding:8px;background:#f8fbff;border:1px solid #e6eefb;text-align:center}
+  .node{height:14px;background:#e9eef8;border-radius:6px;margin:6px 0;transition:background .2s}
+  .node.busy{background:var(--ok)}
+  .log{background:#0b1220;color:#fff;padding:8px;border-radius:6px;font-size:13px;max-height:220px;overflow:auto;white-space:pre-wrap}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{padding:6px;border-bottom:1px solid #eef3fb;text-align:left;font-size:13px}
+  .right{text-align:right}
+  .small{font-size:13px;color:var(--muted)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  @media(max-width:820px){.row{flex-direction:column}}
 </style>
 </head>
 <body>
-<div class="container" id="app">
-  <div style="position:relative">
-    <div class="lang-toggle">
-      <select id="lang" onchange="setLang(this.value)">
-        <option value="en">EN</option>
-        <option value="ru">RU</option>
-      </select>
-    </div>
-    <h1 id="title">Cloudi — Full Cloud MVP (Investor Demo)</h1>
-  </div>
+<div class="wrap">
+  <h1>Cloudi — Minimal Realistic MVP (для инвестора)</h1>
+  <div class="muted">Реалистичное демо: Kernel → Compute Matrix → AI Dispatcher → Elastic Scale → Cost Engine → Comparison</div>
 
-  <div id="subtitle" class="lead">Interactive demo: AI-Dispatcher, Smart-Packing, Elastic Scale, cost model, competitor comparison. Transparent & explainable.</div>
-
-  <!-- TOP CONTROLS -->
-  <div class="grid">
+  <!-- INPUT -->
+  <div class="row" style="margin-top:12px">
     <div class="col card">
-      <label id="lbl_ops">Operations (ops)</label>
-      <input id="ops" type="number" value="1000000000" min="1" oninput="updatePreview()">
-      <div class="controls" style="margin-top:8px">
+      <label>Operations (кол-во операций)</label>
+      <input id="ops" type="number" value="1000000000" min="1" />
+      <div class="controls">
         <div style="flex:1">
-          <label id="lbl_nodecap">Base node capacity (ops/sec)</label>
-          <input id="nodeCap" type="number" value="200000000" oninput="updatePreview()">
+          <label>Node capacity (ops/sec)</label>
+          <input id="nodeCap" type="number" value="200000000" />
         </div>
         <div style="width:120px">
-          <label id="lbl_nodesperdc">Nodes / DC</label>
-          <input id="nodesPerDC" type="number" value="4" oninput="updatePreview()">
+          <label>Nodes / DC</label>
+          <input id="nodesPerDC" type="number" value="4" />
         </div>
       </div>
 
       <div class="controls" style="margin-top:8px">
         <div style="flex:1">
-          <label id="lbl_save">Cloudi AI optimization, %</label>
-          <input id="savePct" type="number" value="30" min="0" max="90" oninput="updatePreview()">
+          <label>Cloudi AI optimize (%)</label>
+          <input id="savePct" type="number" value="30" min="0" max="80" />
         </div>
         <div style="width:120px">
-          <label id="lbl_markup">Cloudi markup ×</label>
-          <input id="markup" type="number" value="3" step="0.1" min="1" oninput="updatePreview()">
+          <label>Markup ×</label>
+          <input id="markup" type="number" value="3" step="0.1" min="1" />
         </div>
       </div>
 
-      <div style="margin-top:10px">
-        <button class="button" onclick="startDemo()"><span id="btn_start">Start demo</span></button>
+      <div style="margin-top:10px" class="controls">
+        <button onclick="startSimulation()">Старт симуляции</button>
+        <button onclick="previewNow()" style="background:#333">Обновить превью</button>
       </div>
 
-      <div style="margin-top:8px" class="small" id="hint">Baseline microtest runs briefly in browser to show authenticity.</div>
+      <div style="margin-top:8px" class="small">Baseline-тест (короткий) запускается для доказательства честности — не нагружает устройство.</div>
     </div>
 
+    <!-- SUMMARY -->
     <div class="col card">
-      <div style="font-weight:700" id="summary_title">Quick summary</div>
-      <div id="summary_sub" class="small muted">Preview updates automatically</div>
-
-      <div style="margin-top:8px">
-        <div class="kv"><div id="lbl_nodecap_preview">Node cap</div><div id="val_nodecap" class="right">—</div></div>
-        <div class="kv"><div id="lbl_nodes_raw">Nodes (raw)</div><div id="val_nodes_raw" class="right">—</div></div>
-        <div class="kv"><div id="lbl_nodes_opt">Nodes (Cloudi)</div><div id="val_nodes_opt" class="right">—</div></div>
-        <div class="kv"><div id="lbl_dcs">Data Centers</div><div id="val_dcs" class="right">—</div></div>
-        <div class="kv"><div id="lbl_time">Processing time</div><div id="val_time" class="right">—</div></div>
-        <div class="kv"><div id="lbl_costop">Cost / op (Cloudi)</div><div id="val_costop" class="right">—</div></div>
-        <div style="margin-top:8px"><button class="btn-small" onclick="copySummary()" id="btn_copy">Copy summary</button></div>
+      <div style="font-weight:700">Ключевая сводка</div>
+      <div class="small muted">Превью обновляется по кнопке "Обновить превью" или при симуляции</div>
+      <div class="kv"><div>Оптимальная нода (ops/sec)</div><div id="summ_nodeCap" class="right">—</div></div>
+      <div class="kv"><div>Nodes (raw)</div><div id="summ_nodesRaw" class="right">—</div></div>
+      <div class="kv"><div>Nodes (Cloudi)</div><div id="summ_nodesOpt" class="right">—</div></div>
+      <div class="kv"><div>Дата-центры</div><div id="summ_dcs" class="right">—</div></div>
+      <div class="kv"><div>Время обработки (Cloudi · raw)</div><div id="summ_time" class="right">—</div></div>
+      <div class="kv"><div>Стоимость / оп (Cloudi)</div><div id="summ_costOp" class="right">—</div></div>
+      <div style="margin-top:8px" class="controls">
+        <button onclick="copySummary()" style="background:#222">Копировать сводку</button>
+        <button onclick="downloadTxt()" style="background:#444">Экспорт .txt</button>
       </div>
     </div>
   </div>
 
-  <!-- VISUALIZATION & FINANCE -->
+  <!-- Compute Matrix + Controls -->
   <div class="row">
     <div class="col card">
-      <h3 id="infra_title">Infrastructure — DCs & nodes</h3>
-      <div class="small muted" id="infra_hint">Active nodes highlighted in green</div>
-      <div id="dc_container" class="nodes-wrap" aria-hidden="false"></div>
-      <div style="margin-top:8px" class="small" id="node_status">—</div>
+      <h3 style="margin:6px 0">Compute Matrix — разбиение и распределение</h3>
+      <div class="small muted">Kernel делит задачи на блоки; Dispatcher делает Smart-Packing; видна матрица распределения.</div>
+      <label>Block size (ops per block)</label>
+      <input id="blockSize" type="number" value="1000000" />
+      <div style="margin-top:8px" class="small muted">Пример: если ops=1e9 и block=1e6 → 1000 блоков.</div>
 
       <div style="margin-top:10px">
-        <div class="progressOuter"><div id="progress" class="progressInner">0%</div></div>
-        <div class="small muted" id="eta">ETA: —</div>
+        <button onclick="showComputeMatrix()" style="background:#0b63c6">Показать Matrix</button>
+        <button onclick="toggleML()" style="background:#0b9d58">ML loop: on/off</button>
       </div>
 
-      <div style="margin-top:12px">
-        <h4 id="log_title">Detailed log (technical)</h4>
-        <div id="log" class="log">Ready. Configure parameters and press Start demo.</div>
+      <div id="matrixArea" style="margin-top:12px"></div>
+    </div>
+
+    <div class="col card">
+      <h3 style="margin:6px 0">Инфраструктура (визуализация)</h3>
+      <div id="dcArea" class="nodes"></div>
+      <div style="margin-top:8px" id="nodeStatus" class="small muted">—</div>
+      <div style="margin-top:8px">
+        <div style="background:#eef3fb;height:16px;border-radius:8px;overflow:hidden"><div id="progBar" style="height:100%;width:0;background:var(--ok);text-align:center;color:#fff;font-size:12px">0%</div></div>
+      </div>
+      <div style="margin-top:8px" class="small muted" id="eta">ETA: —</div>
+    </div>
+  </div>
+
+  <!-- Finance & Comparison -->
+  <div class="row" style="margin-top:12px">
+    <div class="col card">
+      <h3 style="margin:6px 0">Cost Control Engine</h3>
+      <div class="kv"><div>Стоимость ноды / мес</div><div id="nodeCost" class="right">$420</div></div>
+      <div class="kv"><div>Прочие расходы / мес</div><div id="otherCost" class="right">$980</div></div>
+      <div class="kv"><div>Итого / мес</div><div id="infraMonth" class="right">—</div></div>
+      <div class="kv"><div>Итого / год</div><div id="infraYear" class="right">—</div></div>
+      <div style="margin-top:8px">
+        <label>Комментарий</label>
+        <textarea id="costComment" rows="4">Cost engine рассчитывает cost/op = infra_month / (effectiveCap * nodes * seconds_per_month). Price = cost/op * markup.</textarea>
       </div>
     </div>
 
     <div class="col card">
-      <h3 id="finance_title">Finance & comparison</h3>
-      <div class="small muted" id="finance_hint">Cost model is based on infra; Cloudi price = cost/op × markup</div>
-
-      <table class="table">
-        <tr><td id="t_nodecost_label">Node cost / month</td><td id="val_nodecost" class="right">$420</td></tr>
-        <tr><td id="t_othercost_label">Other fixed costs / month</td><td id="val_othercost" class="right">$980</td></tr>
-        <tr><td><b id="t_total_month">Total / month (Cloudi)</b></td><td id="val_totalmonth" class="right">—</td></tr>
-        <tr><td><b id="t_total_year">Total / year</b></td><td id="val_totalyear" class="right">—</td></tr>
-      </table>
-
-      <canvas id="chart_cost" style="margin-top:12px;max-height:220px"></canvas>
-      <canvas id="chart_time" style="margin-top:12px;max-height:160px"></canvas>
+      <h3 style="margin:6px 0">Сравнение (Cloudi vs AWS/GCP/Azure)</h3>
+      <table id="cmpTable"><tr><th>Platform</th><th class="right">Cost/op</th><th class="right">Price for volume</th><th class="right">Time (s)</th></tr></table>
+      <div style="margin-top:8px">
+        <canvas id="chartCost" height="180"></canvas>
+      </div>
     </div>
   </div>
 
-  <!-- COMPARISON TABLE -->
-  <div style="margin-top:12px" class="card">
-    <h3 id="comp_title">Price & time comparison</h3>
-    <div class="small muted" id="comp_hint">Cost/op and total price for the same input volume</div>
-    <table id="comp_table" class="table">
-      <tr><th>Platform</th><th class="right">Cost / op (USD)</th><th class="right">Price for volume</th><th class="right">Time (s)</th></tr>
-      <!-- rows filled dynamically -->
-    </table>
+  <!-- API Examples, SLA and Security -->
+  <div class="row" style="margin-top:12px">
+    <div class="col card">
+      <h3 style="margin:6px 0">B2B API (пример)</h3>
+      <div class="small muted">Пример запроса и ответа API, как для интеграции</div>
+      <label>Request (JSON)</label>
+      <textarea id="apiReq" rows="6">{
+  "task":"batch",
+  "ops":1000000000,
+  "priority":"normal"
+}</textarea>
+      <label style="margin-top:8px">Response (пример)</label>
+      <textarea id="apiResp" rows="6">{ "status":"accepted", "estimated_time_s":0.96, "nodes":4 }</textarea>
+    </div>
+
+    <div class="col card">
+      <h3 style="margin:6px 0">SLA & Security (симуляция)</h3>
+      <div class="small muted">Проверки: latency SLA, anomaly detector</div>
+      <div class="kv"><div>Latency SLA target</div><div id="sla" class="right"><b>≤ 1s</b></div></div>
+      <div class="kv"><div>Anomaly detected</div><div id="anomaly" class="right">false</div></div>
+      <div style="margin-top:8px"><button onclick="simulateAnomaly()" style="background:#f59e0b">Симулировать аномалию</button></div>
+    </div>
   </div>
 
-  <div class="footer" id="footer_note">
-    Formulas: nodes = ceil(ops / node_capacity). For Cloudi: effective_capacity = node_capacity * (1 + savePct/100). cost_per_op = infra_month / (effective_capacity * nodes * seconds_per_month).
+  <!-- Log -->
+  <div style="margin-top:12px" class="card">
+    <h3 style="margin:6px 0">Лог (для инвестора/техников)</h3>
+    <div id="log" class="log">Готово — нажмите "Обновить превью" или "Старт симуляции".</div>
   </div>
+
+  <div style="text-align:center;margin-top:10px" class="small muted">Формулы: nodes_raw=ceil(ops/nodeCap). effectiveCap=nodeCap*(1+savePct/100). nodes_opt=ceil(ops/effectiveCap). time=ops/(effectiveCap*nodes_opt).</div>
 </div>
 
 <script>
-/* =================== configuration & defaults =================== */
-const DEFAULTS = {
-  nodeCost: 420,
-  otherCost: 980,
-  nodesPerDC: 4,
-  secondsPerMonth: 30*24*3600,
-  competitors: {
-    AWS:  { nodeCapacity: 180_000_000, nodeCost: 500 },
-    GCP:  { nodeCapacity: 190_000_000, nodeCost: 480 },
-    Azure:{ nodeCapacity: 175_000_000, nodeCost: 520 }
-  }
+/* ====== Минималистичный, реалистичный движок Cloudi (B) ====== */
+const SECONDS_PER_MONTH = 30*24*3600;
+const DEFAULT_NODE_COST = 420;
+const DEFAULT_OTHER_COST = 980;
+const COMPETITORS = {
+  AWS: { nodeCap:180_000_000, nodeCost:500 },
+  GCP: { nodeCap:190_000_000, nodeCost:480 },
+  Azure: { nodeCap:175_000_000, nodeCost:520 }
 };
 
-/* translate strings */
-const STR = {
-  en: {
-    title: "Cloudi — Full Cloud MVP (Investor Demo)",
-    subtitle: "Interactive demo: AI-Dispatcher, Smart-Packing, Elastic Scale, cost model, competitor comparison. Transparent & explainable.",
-    ops:"Operations (ops)",
-    nodecap:"Base node capacity (ops/sec)",
-    nodesperdc:"Nodes / DC",
-    save:"Cloudi AI optimization, %",
-    markup:"Cloudi markup ×",
-    start:"Start demo",
-    hint:"Baseline microtest runs briefly in browser to show authenticity.",
-    quick:"Quick summary",
-    preview:"Preview updates automatically",
-    nodecap_preview:"Node cap",
-    nodesraw:"Nodes (raw)",
-    nodesopt:"Nodes (Cloudi)",
-    dcs:"Data Centers",
-    time:"Processing time",
-    costop:"Cost / op (Cloudi)",
-    copy:"Copy summary",
-    infra_title:"Infrastructure — DCs & nodes",
-    infra_hint:"Active nodes highlighted in green",
-    log_title:"Detailed log (technical)",
-    finance_title:"Finance & comparison",
-    finance_hint:"Cost model is based on infra; Cloudi price = cost_per_op × markup",
-    nodecost_label:"Node cost / month",
-    othercost_label:"Other fixed costs / month",
-    total_month:"Total / month (Cloudi)",
-    total_year:"Total / year",
-    comp_title:"Price & time comparison",
-    comp_hint:"Cost/op and total price for the same input volume",
-    footer:"Formulas: nodes = ceil(ops / node_capacity). For Cloudi: effective_capacity = node_capacity * (1 + savePct/100). cost_per_op = infra_month / (effective_capacity * nodes * seconds_per_month)."
-  },
-  ru: {
-    title: "Cloudi — Полный MVP облака (Демо для инвестора)",
-    subtitle: "Интерактив: AI-диспетчер, Smart-Packing, Elastic Scale, модель затрат, сравнение с AWS/GCP/Azure. Прозрачно и объяснимо.",
-    ops:"Количество операций (ops)",
-    nodecap:"Пропускная способность ноды (ops/sec)",
-    nodesperdc:"Нод/Дата-центр",
-    save:"Оптимизация Cloudi AI, %",
-    markup:"Наценка Cloudi ×",
-    start:"Старт симуляции",
-    hint:"Короткий baseline-тест запускается в браузере для достоверности.",
-    quick:"Ключевая сводка",
-    preview:"Предварительный расчёт обновляется автоматически",
-    nodecap_preview:"Нода (ops/sec)",
-    nodesraw:"Ноды (raw)",
-    nodesopt:"Ноды (Cloudi)",
-    dcs:"Дата-центры",
-    time:"Время обработки",
-    costop:"Стоимость / оп (Cloudi)",
-    copy:"Скопировать сводку",
-    infra_title:"Инфраструктура — дата-центры и ноды",
-    infra_hint:"Активные ноды подсвечены зелёным",
-    log_title:"Подробный лог (технический)",
-    finance_title:"Финансы и сравнение",
-    finance_hint:"Себестоимость основана на инфрастуктуре; цена Cloudi = cost_per_op × markup",
-    nodecost_label:"Стоимость ноды / мес",
-    othercost_label:"Прочие расходы / мес",
-    total_month:"Итого / мес (Cloudi)",
-    total_year:"Итого / год",
-    comp_title:"Сравнение по цене и времени",
-    comp_hint:"Стоимость/оп и итоговая цена для введённого объёма",
-    footer:"Формулы: nodes = ceil(ops / node_capacity). Для Cloudi: effective_capacity = node_capacity * (1 + savePct/100). cost_per_op = infra_month / (effective_capacity * nodes * seconds_per_month)."
-  }
-};
-let LANG = 'en';
-
-/* =================== small helpers =================== */
-function _(k){ return STR[LANG][k] || k; }
-function setLang(v){
-  LANG = v;
-  // update static strings
-  document.getElementById('title').textContent = _( 'title' );
-  document.getElementById('subtitle').textContent = _( 'subtitle' );
-  document.getElementById('lbl_ops').textContent = _( 'ops' );
-  document.getElementById('lbl_nodecap').textContent = _( 'nodecap' );
-  document.getElementById('lbl_nodesperdc').textContent = _( 'nodesperdc' );
-  document.getElementById('lbl_save').textContent = _( 'save' );
-  document.getElementById('lbl_markup').textContent = _( 'markup' );
-  document.getElementById('btn_start').textContent = _( 'start' );
-  document.getElementById('hint').textContent = _( 'hint' );
-  document.getElementById('summary_title').textContent = _( 'quick' );
-  document.getElementById('summary_sub').textContent = _( 'preview' );
-  document.getElementById('lbl_nodecap_preview').textContent = _( 'nodecap_preview' );
-  document.getElementById('lbl_nodes_raw').textContent = _( 'nodesraw' );
-  document.getElementById('lbl_nodes_opt').textContent = _( 'nodesopt' );
-  document.getElementById('lbl_dcs').textContent = _( 'dcs' );
-  document.getElementById('lbl_time').textContent = _( 'time' );
-  document.getElementById('lbl_costop').textContent = _( 'costop' );
-  document.getElementById('btn_copy').textContent = _( 'copy' );
-  document.getElementById('infra_title').textContent = _( 'infra_title' );
-  document.getElementById('infra_hint').textContent = _( 'infra_hint' );
-  document.getElementById('log_title').textContent = _( 'log_title' );
-  document.getElementById('finance_title').textContent = _( 'finance_title' );
-  document.getElementById('finance_hint').textContent = _( 'finance_hint' );
-  document.getElementById('t_nodecost_label').textContent = _( 'nodecost_label' );
-  document.getElementById('t_othercost_label').textContent = _( 'othercost_label' );
-  document.getElementById('t_total_month').textContent = _( 'total_month' );
-  document.getElementById('t_total_year').textContent = _( 'total_year' );
-  document.getElementById('comp_title').textContent = _( 'comp_title' );
-  document.getElementById('comp_hint').textContent = _( 'comp_hint' );
-  document.getElementById('footer_note').textContent = _( 'footer' );
-  updatePreview();
-}
-
-/* formatting */
-function fmt(n){ if(typeof n!=='number') return n; return n.toLocaleString(); }
+/* Utilities */
+function log(msg){ const el=document.getElementById('log'); el.textContent = new Date().toLocaleTimeString() + ' — ' + msg + '\n' + el.textContent; }
+function fmt(n){ return (typeof n==='number')? n.toLocaleString(): n; }
 function money(n){
-  if(n===0) return '$0.00';
-  if(Math.abs(n) < 0.0000001) return n.toExponential(3);
+  if (n===0) return '$0.00';
+  if (Math.abs(n) < 1e-6) return n.toExponential(3);
   return '$' + Number(n).toLocaleString(undefined,{maximumFractionDigits:6});
 }
-function now(){ return new Date().toLocaleTimeString(); }
 
-/* logging */
-function pushLog(line){
-  const el = document.getElementById('log');
-  el.textContent = `${now()} — ${line}\n` + el.textContent;
-}
+/* Preview calculator (light) */
+function previewNow(){
+  const ops = Math.max(1, Number(document.getElementById('ops').value));
+  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
+  const nodesPerDC = Math.max(1, Number(document.getElementById('nodesPerDC').value));
+  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
+  const markup = Math.max(1, Number(document.getElementById('markup').value));
+  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
 
-/* baseline micro test — safe small loop to show authenticity */
-async function baselineTest(){
-  return new Promise(resolve=>{
-    const testOps = 200000; // safe
-    const start = performance.now();
-    let x=0;
-    for(let i=0;i<testOps;i++){ x += (i%7); }
-    const dur = (performance.now() - start)/1000;
-    const opsSec = Math.max(1, Math.round(testOps / Math.max(dur, 0.0001)));
-    pushLog(`Baseline microtest: ${testOps} ops in ${dur.toFixed(3)}s -> ${fmt(opsSec)} ops/sec`);
-    resolve(opsSec);
-  });
-}
-
-/* charts */
-let chartCost = null, chartTime = null;
-function initCharts(){
-  const c1 = document.getElementById('chart_cost').getContext('2d');
-  if(chartCost){ chartCost.destroy(); chartCost=null; }
-  chartCost = new Chart(c1, {type:'bar', data:{labels:[], datasets:[{label:'Total $', data:[], backgroundColor:['#0b63c6','#3b82f6','#60a5fa','#93c5fd']}]}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{display:false}}}});
-  const c2 = document.getElementById('chart_time').getContext('2d');
-  if(chartTime){ chartTime.destroy(); chartTime=null; }
-  chartTime = new Chart(c2, {type:'bar', data:{labels:[], datasets:[{label:'Time(s)', data:[], backgroundColor:['#16a34a','#f59e0b','#ef4444','#a855f7']}]}, options:{responsive:true,maintainAspectRatio:false, plugins:{legend:{display:false}}}});
-}
-
-/* ===== core calculation & UI update ===== */
-async function updatePreview(){
-  // read inputs
-  const ops = Math.max(1, Math.floor(Number(document.getElementById('ops').value) || 1));
-  const nodeCap = Math.max(1, Math.floor(Number(document.getElementById('nodeCap').value) || 200000000));
-  const nodesPerDC = Math.max(1, Math.floor(Number(document.getElementById('nodesPerDC').value) || DEFAULTS.nodesPerDC));
-  const savePct = Math.max(0, Math.min(90, Number(document.getElementById('savePct').value) || 30));
-  const markup = Math.max(1, Number(document.getElementById('markup').value) || 3);
-
-  // raw nodes
+  // Raw and optimized nodes
   const nodesRaw = Math.max(1, Math.ceil(ops / nodeCap));
   const effectiveCap = nodeCap * (1 + savePct/100);
   const nodesOpt = Math.max(1, Math.ceil(ops / effectiveCap));
-  const dcsOpt = Math.ceil(nodesOpt / nodesPerDC);
+  const dcs = Math.ceil(nodesOpt / nodesPerDC);
 
   const timeRaw = ops / (nodeCap * nodesRaw);
   const timeOpt = ops / (effectiveCap * nodesOpt);
-  const visRaw = Math.min(120, Math.max(0.00001, timeRaw));
-  const visOpt = Math.min(120, Math.max(0.00001, timeOpt));
 
   // infra cost
-  const nodeCost = DEFAULTS.nodeCost;
-  const otherCost = DEFAULTS.otherCost;
-  const infraMonth = nodesOpt * nodeCost + otherCost;
+  const infraMonth = nodesOpt * DEFAULT_NODE_COST + DEFAULT_OTHER_COST;
   const infraYear = infraMonth * 12;
-
-  const opsPerMonth = effectiveCap * nodesOpt * DEFAULTS.secondsPerMonth;
+  const opsPerMonth = effectiveCap * nodesOpt * SECONDS_PER_MONTH;
   const costPerOp = infraMonth / Math.max(1, opsPerMonth);
   const pricePerOp = costPerOp * markup;
   const totalPrice = pricePerOp * ops;
 
-  // competitors
-  const comps = {};
-  for(const [k,v] of Object.entries(DEFAULTS.competitors)){
-    const nodesC = Math.max(1, Math.ceil(ops / v.nodeCapacity));
-    const dcsC = Math.ceil(nodesC / nodesPerDC);
-    const infraC = nodesC * v.nodeCost + otherCost;
-    const opsPerMonthC = v.nodeCapacity * nodesC * DEFAULTS.secondsPerMonth;
-    const costPerOpC = infraC / Math.max(1, opsPerMonthC);
-    const pricePerOpC = costPerOpC * markup;
-    const totalC = pricePerOpC * ops;
-    const timeC = ops / (v.nodeCapacity * nodesC);
-    comps[k] = {nodes: nodesC, dcs: dcsC, infraMonth: infraC, costPerOp: costPerOpC, pricePerOp: pricePerOpC, total: totalC, time: timeC};
-  }
+  // fill summary
+  document.getElementById('summ_nodeCap').innerText = fmt(nodeCap);
+  document.getElementById('summ_nodesRaw').innerText = fmt(nodesRaw);
+  document.getElementById('summ_nodesOpt').innerText = fmt(nodesOpt);
+  document.getElementById('summ_dcs').innerText = fmt(dcs);
+  document.getElementById('summ_time').innerText = `${timeOpt.toFixed(6)} s (Cloudi) · raw ${timeRaw.toFixed(6)} s`;
+  document.getElementById('summ_costOp').innerText = pricePerOp < 1e-6? pricePerOp.toExponential(3) : money(pricePerOp);
 
-  // UI preview fill
-  document.getElementById('val_nodecap').innerText = fmt(nodeCap);
-  document.getElementById('val_nodes_raw').innerText = fmt(nodesRaw);
-  document.getElementById('val_nodes_opt').innerText = fmt(nodesOpt);
-  document.getElementById('val_dcs').innerText = fmt(dcsOpt);
-  document.getElementById('val_time').innerText = `${visOpt.toFixed(6)} s (Cloudi) · raw ${visRaw.toFixed(6)} s`;
-  document.getElementById('val_costop').innerText = money(pricePerOp);
+  document.getElementById('infraMonth').innerText = money(infraMonth);
+  document.getElementById('infraYear').innerText = money(infraYear);
 
-  document.getElementById('val_nodecost').innerText = `$${nodeCost}`;
-  document.getElementById('val_othercost').innerText = `$${otherCost}`;
-  document.getElementById('val_totalmonth').innerText = money(infraMonth);
-  document.getElementById('val_totalyear').innerText = money(infraYear);
+  // build DC visualization (static preview)
+  renderDCs(nodesOpt, nodesPerDC);
 
-  // Build small comparison table preview
-  const table = document.getElementById('comp_table');
-  while(table.rows.length>1) table.deleteRow(1);
-  // Cloudi
-  addCompRow(table, 'Cloudi (optimized)', pricePerOp, totalPrice, visOpt);
-  for(const [k,v] of Object.entries(comps)){
-    addCompRow(table, k, v.pricePerOp, v.total, Math.min(120, v.time));
-  }
+  // build comparison table
+  buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice);
 
-  // small charts update
-  try {
-    if(!chartCost || !chartTime) initCharts();
-    const labels = ['Cloudi', ...Object.keys(comps)];
-    const costs = [Number(totalPrice.toFixed(2)), ...Object.values(comps).map(c=>Number(c.total.toFixed(2)))];
-    const times = [Number(visOpt.toFixed(3)), ...Object.values(comps).map(c=>Number(Math.min(120,c.time).toFixed(3)))];
-    chartCost.data.labels = labels; chartCost.data.datasets[0].data = costs; chartCost.update();
-    chartTime.data.labels = labels; chartTime.data.datasets[0].data = times; chartTime.update();
-  } catch(e){ /* charts may not be initialized yet */ }
-
-  // preview DC/nodes rendering (static)
-  renderDCsPreview(nodesOpt, nodesPerDC);
-
-  // log a short summary (not too spammy)
-  pushLogPreview(ops, nodeCap, savePct, nodesOpt, dcsOpt, visOpt, pricePerOp, totalPrice);
+  log(`Preview: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, save=${savePct}%, nodesOpt=${nodesOpt}, time=${timeOpt.toFixed(6)}s, price/op=${pricePerOp.toExponential(3)}`);
 }
 
-/* helper to add comparison row */
-function addCompRow(table,name,costPerOp,totalPrice,time){
-  const r = table.insertRow(-1);
-  const c1 = r.insertCell(0); c1.textContent = name;
-  const c2 = r.insertCell(1); c2.className='right'; c2.textContent = (Math.abs(costPerOp) < 0.0000001) ? costPerOp.toExponential(3) : money(costPerOp);
-  const c3 = r.insertCell(2); c3.className='right'; c3.textContent = money(totalPrice);
-  const c4 = r.insertCell(3); c4.className='right'; c4.textContent = time.toFixed(3);
-}
-
-/* small preview log entry */
-let lastPreviewLog = '';
-function pushLogPreview(ops,nodeCap,savePct,nodes,dcs,time,costPerOp,total){
-  const text = `Preview: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, save=${savePct}%, nodes=${nodes}, dcs=${dcs}, time=${time.toFixed(6)}s, price/op=${(Math.abs(costPerOp)<1e-8?costPerOp.toExponential(3):money(costPerOp))}`;
-  if(text !== lastPreviewLog){
-    pushLog(text);
-    lastPreviewLog = text;
-  }
-}
-
-/* render DCs preview */
-function renderDCsPreview(activeNodes, nodesPerDC){
-  const container = document.getElementById('dc_container');
-  container.innerHTML = '';
-  const dcs = Math.ceil(activeNodes / nodesPerDC) || 1;
-  let nodeIndex = 0;
+/* Render DCs (static) */
+function renderDCs(nodesOpt, nodesPerDC){
+  const area = document.getElementById('dcArea');
+  area.innerHTML = '';
+  const dcs = Math.max(1, Math.ceil(nodesOpt / nodesPerDC));
+  let index=0;
   for(let d=0; d<dcs; d++){
     const dc = document.createElement('div'); dc.className='dc';
     dc.innerHTML = `<div style="font-weight:700">DC ${d+1}</div>`;
     for(let n=0;n<nodesPerDC;n++){
-      const nodeEl = document.createElement('div'); nodeEl.className='node';
-      if(nodeIndex < activeNodes) nodeEl.dataset.active='1'; else nodeEl.dataset.active='0';
-      dc.appendChild(nodeEl);
-      nodeIndex++;
+      const node = document.createElement('div'); node.className='node';
+      if(index < nodesOpt) node.dataset.active='1'; else node.dataset.active='0';
+      dc.appendChild(node); index++;
     }
-    container.appendChild(dc);
+    area.appendChild(dc);
   }
 }
 
-/* Start full demo (animation + final calculations) */
-async function startDemo(){
-  initCharts();
-  // read inputs
-  const ops = Math.max(1, Math.floor(Number(document.getElementById('ops').value) || 1));
-  const nodeCap = Math.max(1, Math.floor(Number(document.getElementById('nodeCap').value) || 200000000));
-  const nodesPerDC = Math.max(1, Math.floor(Number(document.getElementById('nodesPerDC').value) || DEFAULTS.nodesPerDC));
-  const savePct = Math.max(0, Math.min(90, Number(document.getElementById('savePct').value) || 30));
-  const markup = Math.max(1, Number(document.getElementById('markup').value) || 3);
+/* Build comparison (dynamic) */
+function buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice){
+  const table = document.getElementById('cmpTable');
+  // clear
+  while(table.rows.length>1) table.deleteRow(1);
+  // Cloudi
+  addCmpRow(table,'Cloudi', pricePerOp, totalPrice, timeOpt);
+  // competitors: compute nodes, cost/op, total, time
+  for(const [k,v] of Object.entries(COMPETITORS)){
+    const nodesC = Math.max(1, Math.ceil(ops / v.nodeCap));
+    const infraC = nodesC * v.nodeCost + DEFAULT_OTHER_COST;
+    const opsPerMonthC = v.nodeCap * nodesC * SECONDS_PER_MONTH;
+    const costPerOpC = infraC / Math.max(1, opsPerMonthC);
+    const pricePerOpC = costPerOpC * Number(document.getElementById('markup').value || 3);
+    const totalC = pricePerOpC * ops;
+    const timeC = ops / (v.nodeCap * nodesC);
+    addCmpRow(table, k, pricePerOpC, totalC, timeC);
+  }
+  // draw small chart cost
+  try{
+    drawCostChart();
+  }catch(e){}
+}
 
-  pushLog(`Start demo: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, savePct=${savePct}%, markup=${markup}x`);
+/* add table row helper */
+function addCmpRow(table, name, costOp, total, time){
+  const r = table.insertRow(-1);
+  const c1 = r.insertCell(0); c1.textContent = name;
+  const c2 = r.insertCell(1); c2.className='right'; c2.textContent = (Math.abs(costOp)<1e-6)? costOp.toExponential(3) : money(costOp);
+  const c3 = r.insertCell(2); c3.className='right'; c3.textContent = money(total);
+  const c4 = r.insertCell(3); c4.className='right'; c4.textContent = time.toFixed(3);
+}
 
-  // 1) baseline test (authenticity)
-  const baseline = await baselineTest();
+/* Draw simple cost chart */
+let costChart=null;
+function drawCostChart(){
+  const labels=[]; const data=[];
+  const rows = document.getElementById('cmpTable').rows;
+  for(let i=1;i<rows.length;i++){
+    labels.push(rows[i].cells[0].textContent);
+    const v = Number(rows[i].cells[2].textContent.replace(/[^0-9.\-eE]/g,'')) || 0;
+    data.push(v);
+  }
+  const ctx = document.getElementById('chartCost').getContext('2d');
+  if(costChart) costChart.destroy();
+  costChart = new Chart(ctx, {type:'bar', data:{labels, datasets:[{label:'Total $',data, backgroundColor:['#0b63c6','#3b82f6','#60a5fa','#93c5fd']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
+}
 
-  // 2) core calculation
+/* Compute Matrix visualization (detailed) */
+function showComputeMatrix(){
+  const ops = Math.max(1, Number(document.getElementById('ops').value));
+  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
+  const blocks = Math.ceil(ops / blockSize);
+  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
+  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
+  const effectiveCap = nodeCap * (1 + savePct/100);
+
+  // assign blocks to nodes (smart packing): pack blocks into nodes until node capacity ~ 90%
+  const nodes = [];
+  const perNodeLimit = Math.floor(effectiveCap / blockSize); // how many blocks ideally per node
+  let remaining = blocks;
+  // greedy packing
+  while(remaining>0){
+    const take = Math.min(perNodeLimit, remaining);
+    nodes.push(take);
+    remaining -= take;
+  }
+
+  // render matrix: table with node rows and assigned blocks
+  const area = document.getElementById('matrixArea');
+  area.innerHTML = `<div class="small muted">Blocks: ${blocks}, blockSize=${blockSize} ops</div>`;
+  const table = document.createElement('table');
+  table.innerHTML = '<tr><th>Node</th><th>Assigned blocks</th><th class="right">blocks/node</th></tr>';
+  for(let i=0;i<nodes.length;i++){
+    const r = table.insertRow(-1);
+    r.insertCell(0).textContent = 'node-'+(i+1);
+    r.insertCell(1).textContent = `blocks ${nodes[i]} (ops ${nodes[i]*blockSize})`;
+    r.insertCell(2).className='right'; r.cells[2].textContent = nodes[i];
+  }
+  area.appendChild(table);
+  log(`Compute Matrix: ${blocks} blocks, perNodeLimit=${perNodeLimit}, nodesAssigned=${nodes.length}`);
+}
+
+/* ML loop simulation (improves savePct over iterations) */
+let mlRunning=false;
+function toggleML(){
+  mlRunning = !mlRunning;
+  if(mlRunning){
+    log('ML loop started: optimizing savePct over time');
+    mlStep();
+  } else { log('ML loop stopped'); }
+}
+function mlStep(){
+  if(!mlRunning) return;
+  const el = document.getElementById('savePct');
+  let v = Number(el.value);
+  if(v < 60){ v += 1; el.value = Math.round(v); log(`ML improved savePct -> ${v}%`); previewNow(); }
+  // schedule next
+  setTimeout(mlStep, 3000);
+}
+
+/* Simulation run: full process with animation and step-by-step log */
+async function startSimulation(){
+  previewNow(); // ensure preview values
+  const ops = Math.max(1, Number(document.getElementById('ops').value));
+  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
+  const nodesPerDC = Math.max(1, Number(document.getElementById('nodesPerDC').value));
+  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
+  const markup = Math.max(1, Number(document.getElementById('markup').value));
+  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
+
+  log(`Start simulation: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, save=${savePct}%, markup=${markup}x, block=${fmt(blockSize)}`);
+
+  // baseline microtest (safe)
+  const baseline = await runBaseline();
+  log(`Baseline measured: ${fmt(baseline)} ops/sec (client device). Using server nodeCap=${fmt(nodeCap)} for modeling.`);
+
+  // compute nodes
   const nodesRaw = Math.max(1, Math.ceil(ops / nodeCap));
   const effectiveCap = nodeCap * (1 + savePct/100);
   const nodesOpt = Math.max(1, Math.ceil(ops / effectiveCap));
-  const dcsOpt = Math.ceil(nodesOpt / nodesPerDC);
+  const dcs = Math.ceil(nodesOpt / nodesPerDC);
 
-  const timeRaw = ops / (nodeCap * nodesRaw);
-  const timeOpt = ops / (effectiveCap * nodesOpt);
-  const visTime = Math.min(120, Math.max(0.05, timeOpt));
+  // time estimate
+  const timeOpt = ops / (effectiveCap * nodesOpt); // seconds
+  const visTime = Math.min(120, Math.max(0.02, timeOpt));
 
   // infra cost
-  const nodeCost = DEFAULTS.nodeCost;
-  const otherCost = DEFAULTS.otherCost;
-  const infraMonth = nodesOpt * nodeCost + otherCost;
+  const infraMonth = nodesOpt * DEFAULT_NODE_COST + DEFAULT_OTHER_COST;
   const infraYear = infraMonth * 12;
-
-  const opsPerMonth = effectiveCap * nodesOpt * DEFAULTS.secondsPerMonth;
+  const opsPerMonth = effectiveCap * nodesOpt * SECONDS_PER_MONTH;
   const costPerOp = infraMonth / Math.max(1, opsPerMonth);
   const pricePerOp = costPerOp * markup;
   const totalPrice = pricePerOp * ops;
 
-  // competitor calc
-  const comps = {};
-  for(const [k,v] of Object.entries(DEFAULTS.competitors)){
-    const nodesC = Math.max(1, Math.ceil(ops / v.nodeCapacity));
-    const infraC = nodesC * v.nodeCost + otherCost;
-    const opsPerMonthC = v.nodeCapacity * nodesC * DEFAULTS.secondsPerMonth;
-    const costPerOpC = infraC / Math.max(1, opsPerMonthC);
-    const pricePerOpC = costPerOpC * markup;
-    const totalC = pricePerOpC * ops;
-    const timeC = ops / (v.nodeCapacity * nodesC);
-    comps[k] = {nodes: nodesC, infraMonth: infraC, costPerOp: costPerOpC, pricePerOp: pricePerOpC, total: totalC, time: timeC};
-  }
-
   // update summary UI
-  document.getElementById('val_nodecap').innerText = fmt(nodeCap);
-  document.getElementById('val_nodes_raw').innerText = fmt(nodesRaw);
-  document.getElementById('val_nodes_opt').innerText = fmt(nodesOpt);
-  document.getElementById('val_dcs').innerText = fmt(dcsOpt);
-  document.getElementById('val_time').innerText = `${visTime.toFixed(6)} s (Cloudi) · raw ${timeRaw.toFixed(6)} s`;
-  document.getElementById('val_costop').innerText = money(pricePerOp);
+  document.getElementById('summ_nodeCap').innerText = fmt(nodeCap);
+  document.getElementById('summ_nodesRaw').innerText = fmt(nodesRaw);
+  document.getElementById('summ_nodesOpt').innerText = fmt(nodesOpt);
+  document.getElementById('summ_dcs').innerText = fmt(dcs);
+  document.getElementById('summ_time').innerText = `${timeOpt.toFixed(6)} s (Cloudi) · raw ${ (ops/(nodeCap*nodesRaw)).toFixed(6) } s`;
+  document.getElementById('summ_costOp').innerText = pricePerOp < 1e-6 ? pricePerOp.toExponential(3) : money(pricePerOp);
+  document.getElementById('infraMonth').innerText = money(infraMonth);
+  document.getElementById('infraYear').innerText = money(infraYear);
 
-  document.getElementById('val_totalmonth').innerText = money(infraMonth);
-  document.getElementById('val_totalyear').innerText = money(infraYear);
+  // show matrix and packing
+  showComputeMatrix();
 
-  pushLog(`Calculated nodesOpt=${nodesOpt}, dcs=${dcsOpt}, effectiveCap=${fmt(effectiveCap)}, infraMonth=${money(infraMonth)}`);
-  pushLog(`Cost/op (Cloudi) = ${pricePerOp.toExponential(6)} USD ; Total price = ${money(totalPrice)}`);
-
-  // render DCs & nodes
-  renderDCsPreview(nodesOpt, nodesPerDC);
-
-  // animate processing
-  const activeNodes = Array.from(document.querySelectorAll('.node')).filter(x=>x.dataset.active==='1');
+  // render DCs and animate nodes (simulate processing)
+  renderDCs(nodesOpt, nodesPerDC);
+  const activeNodes = Array.from(document.querySelectorAll('.node')).filter(n=>n.dataset.active==='1' || n.dataset.active===undefined);
   const totalActive = Math.max(1, activeNodes.length);
-  document.getElementById('node_status').innerText = `Cloudi AI dispatcher distributing load across ${totalActive} nodes (smart packing).`;
+  document.getElementById('nodeStatus').innerText = `Cloudi AI dispatcher distributing load across ${totalActive} nodes (smart packing).`;
 
-  // compute animation steps: we'll run for visTime seconds, stepping through nodes
-  const steps = Math.max(1, totalActive);
-  const stepMs = Math.max(80, Math.round((visTime*1000)/steps));
-  document.getElementById('progress').style.width = '0%'; document.getElementById('progress').textContent='0%';
-  document.getElementById('eta').textContent = `ETA: ${visTime.toFixed(3)} s`;
-
+  // animate processing progress in steps equal to totalActive
+  const steps = totalActive;
+  const stepMs = Math.max(80, Math.round((visTime*1000) / steps));
   let step = 0;
+  document.getElementById('progBar').style.width='0%'; document.getElementById('progBar').textContent='0%';
+  document.getElementById('eta').textContent = `ETA: ${visTime.toFixed(3)} s`;
   const anim = setInterval(()=>{
-    activeNodes.forEach((el,i)=> el.classList.toggle('busy', i === (step % totalActive)));
+    const idx = step % totalActive;
+    activeNodes.forEach((el,i)=> el.classList.toggle('busy', i===idx));
     const perc = Math.min(100, Math.round(((step+1)/steps)*100));
-    document.getElementById('progress').style.width = `${perc}%`; document.getElementById('progress').textContent = `${perc}%`;
-    document.getElementById('eta').textContent = `ETA: ${Math.max(0,((steps-step-1)*stepMs/1000)).toFixed(2)} s`;
+    document.getElementById('progBar').style.width = perc + '%'; document.getElementById('progBar').textContent = perc + '%';
+    document.getElementById('eta').textContent = `ETA: ${Math.max(0, ((steps-step-1)*stepMs/1000)).toFixed(2)} s`;
     step++;
-    if(step >= steps){
-      // finalize after small pause
+    if(step>=steps){
+      // finalize
       setTimeout(()=>{
         activeNodes.forEach(el=>el.classList.remove('busy'));
-        document.getElementById('progress').style.width='100%'; document.getElementById('progress').textContent='100%';
+        document.getElementById('progBar').style.width='100%'; document.getElementById('progBar').textContent='100%';
         document.getElementById('eta').textContent = `Done in ${visTime.toFixed(3)} s`;
-        pushLog(`Processing simulation finished in ${visTime.toFixed(6)} s (simulated).`);
+        log(`Processing simulation finished in ${visTime.toFixed(6)} s (simulated).`);
+        log(`Calculated nodesOpt=${nodesOpt}, dcs=${dcs}, effectiveCap=${fmt(effectiveCap)}, infraMonth=${money(infraMonth)}`);
+        log(`Cost/op (Cloudi) = ${pricePerOp.toExponential(6)} USD ; Total price = ${money(totalPrice)}`);
+        // comparison table
+        buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice);
         clearInterval(anim);
       }, 250);
     }
   }, stepMs);
-
-  // fill comparison table & charts
-  const table = document.getElementById('comp_table');
-  while(table.rows.length>1) table.deleteRow(1);
-  addCompRow(table, 'Cloudi (optimized)', pricePerOp, totalPrice, visTime);
-  const labels = ['Cloudi']; const dataCost = [Number(totalPrice.toFixed(2))]; const labelsTime = ['Cloudi']; const dataTime = [Number(visTime.toFixed(3))];
-  for(const [k,v] of Object.entries(comps)){
-    addCompRow(table, k, v.pricePerOp, v.total, Math.min(120, v.time));
-    labels.push(k); dataCost.push(Number(v.total.toFixed(2))); labelsTime.push(k); dataTime.push(Number(Math.min(120, v.time).toFixed(3)));
-  }
-  // update charts
-  if(!chartCost || !chartTime) initCharts();
-  chartCost.data.labels = labels; chartCost.data.datasets[0].data = dataCost; chartCost.update();
-  chartTime.data.labels = labelsTime; chartTime.data.datasets[0].data = dataTime; chartTime.update();
 }
 
-/* copy summary */
+/* Baseline micro-run to show device is tested (non-authoritative) */
+function runBaseline(){
+  return new Promise(resolve=>{
+    const testOps = 200000;
+    const start = performance.now();
+    let s=0;
+    for(let i=0;i<testOps;i++) s += i%7;
+    const dur = (performance.now() - start)/1000;
+    const opsSec = Math.max(1, Math.round(testOps / Math.max(dur, 0.0001)));
+    log(`Baseline microtest: ${testOps} ops in ${dur.toFixed(3)} s -> ${fmt(opsSec)} ops/sec`);
+    resolve(opsSec);
+  });
+}
+
+/* simulate anomaly (SLA) */
+function simulateAnomaly(){
+  document.getElementById('anomaly').innerText = 'true';
+  log('Anomaly simulated: elevated latency. Initiating auto-heal.');
+  // auto-heal: temporary add nodes
+  const nodes = document.querySelectorAll('.node');
+  nodes.forEach(n=> n.classList.add('busy'));
+  setTimeout(()=>{ nodes.forEach(n=> n.classList.remove('busy')); document.getElementById('anomaly').innerText='false'; log('Auto-heal complete.'); }, 3000);
+}
+
+/* copy & export */
 function copySummary(){
   const s = [
-    document.getElementById('summary_sub').textContent,
-    document.getElementById('val_nodecap').textContent ? `Node cap: ${document.getElementById('val_nodecap').textContent}` : '',
-    `Nodes (Cloudi): ${document.getElementById('val_nodes_opt').textContent}`,
-    `DCs: ${document.getElementById('val_dcs').textContent}`,
-    `Time: ${document.getElementById('val_time').textContent}`,
-    `Cost/op: ${document.getElementById('val_costop').textContent}`
+    'Cloudi summary:',
+    'ops: ' + document.getElementById('ops').value,
+    'nodeCap: ' + document.getElementById('nodeCap').value,
+    'nodes(Cloudi): ' + document.getElementById('summ_nodesOpt').innerText,
+    'dcs: ' + document.getElementById('summ_dcs').innerText,
+    'time: ' + document.getElementById('summ_time').innerText,
+    'cost/op: ' + document.getElementById('summ_costOp').innerText
   ].join('\n');
-  navigator.clipboard?.writeText(s).then(()=> alert(LANG==='ru' ? 'Сводка скопирована' : 'Summary copied'), ()=> alert('Copy failed'));
+  navigator.clipboard?.writeText(s).then(()=> alert('Сводка скопирована'), ()=> alert('Не удалось скопировать'));
+}
+function downloadTxt(){
+  const text = document.getElementById('log').textContent;
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='cloudi_log.txt'; a.click(); URL.revokeObjectURL(url);
 }
 
-/* helper to add comp row in demo mode */
-function addCompRow(table,name,costPerOp,totalPrice,time){
-  const r = table.insertRow(-1);
-  const c1 = r.insertCell(0); c1.textContent = name;
-  const c2 = r.insertCell(1); c2.className='right'; c2.textContent = (Math.abs(costPerOp) < 0.0000001) ? costPerOp.toExponential(3) : money(costPerOp);
-  const c3 = r.insertCell(2); c3.className='right'; c3.textContent = money(totalPrice);
-  const c4 = r.insertCell(3); c4.className='right'; c4.textContent = time.toFixed(3);
-}
-
-/* initialize */
-window.addEventListener('load', ()=>{
-  setLang('en'); // default english
-  initCharts();
-  updatePreview(); // show preview on load
-  pushLog('Ready. Configure parameters and press Start demo.');
-});
+/* init preview on load */
+window.addEventListener('load', ()=>{ previewNow(); log('MVP ready (minimal realistic).'); });
 </script>
 </body>
 </html>
