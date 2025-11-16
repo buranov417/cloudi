@@ -1,492 +1,476 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Cloudi — Minimal Realistic MVP</title>
-<!-- Chart.js -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cloudi — Full Cloud MVP (Complete)</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  :root{--bg:#fafbfc;--card:#fff;--muted:#6b7280;--accent:#0b63c6;--ok:#16a34a}
-  body{font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:14px;color:#0f172a}
-  .wrap{max-width:1000px;margin:0 auto;background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 30px rgba(2,6,23,0.06)}
-  h1{margin:0 0 6px;font-size:18px}
-  .muted{color:var(--muted);font-size:13px}
-  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
-  .col{flex:1;min-width:240px}
-  label{font-weight:700;font-size:14px;display:block;margin-bottom:6px}
-  input[type=number],select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e3e8ef;font-size:14px}
-  button{padding:9px 10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-  .card{background:#fff;border:1px solid #eef3fb;padding:10px;border-radius:8px}
-  .kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef3fb;font-size:14px}
-  .nodes{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-  .dc{width:110px;border-radius:8px;padding:8px;background:#f8fbff;border:1px solid #e6eefb;text-align:center}
-  .node{height:14px;background:#e9eef8;border-radius:6px;margin:6px 0;transition:background .2s}
-  .node.busy{background:var(--ok)}
-  .log{background:#0b1220;color:#fff;padding:8px;border-radius:6px;font-size:13px;max-height:220px;overflow:auto;white-space:pre-wrap}
-  table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{padding:6px;border-bottom:1px solid #eef3fb;text-align:left;font-size:13px}
-  .right{text-align:right}
-  .small{font-size:13px;color:var(--muted)}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  @media(max-width:820px){.row{flex-direction:column}}
+:root{
+  --bg:#f6f8fb;--card:#fff;--muted:#6b7280;--accent:#0b63c6;--ok:#16a34a;--warn:#f59e0b;--danger:#ef4444;
+  --maxw:1250px;--glass:rgba(255,255,255,0.85)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f3f6fb,#eef4fb);color:#0f172a}
+.app{max-width:var(--maxw);margin:18px auto;padding:14px;background:var(--glass);border-radius:12px;box-shadow:0 18px 60px rgba(6,17,41,0.08)}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.title{font-size:20px;font-weight:800}
+.subtitle{color:var(--muted);font-size:13px}
+.controls{display:flex;gap:8px;align-items:center}
+.btn{background:var(--accent);color:#fff;padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+.btn-ghost{background:transparent;border:1px solid #dbe8fb;padding:8px;border-radius:8px;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.col{flex:1;min-width:260px}
+.card{background:#fff;border-radius:10px;padding:12px;border:1px solid #eef6ff}
+.label{font-weight:700;margin-bottom:6px;display:block}
+.input{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eefb}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef3fb}
+.nodesGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.dc{width:120px;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid #e6eefb;text-align:center}
+.node{height:12px;background:#e9eef8;border-radius:6px;margin:6px 0;transition:background .15s}
+.node.busy{background:var(--ok)}
+.node.busy.warn{background:var(--warn)}
+.node.busy.err{background:var(--danger)}
+.progressOuter{background:#eef3fb;height:18px;border-radius:10px;overflow:hidden;margin-top:8px}
+.progressInner{height:100%;background:var(--ok);width:0;color:#fff;text-align:center;line-height:18px;font-size:12px}
+.log{background:#081024;color:#e6f1ff;padding:8px;border-radius:6px;font-size:13px;max-height:220px;overflow:auto;white-space:pre-wrap}
+.table{width:100%;border-collapse:collapse;margin-top:8px}
+.table th,.table td{padding:6px;border-bottom:1px solid #eef3fb;font-size:13px;text-align:left}
+.footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+.legend{display:flex;gap:8px;align-items:center;margin-top:8px}
+.legend div{display:flex;gap:6px;align-items:center}
+.box{width:12px;height:12px;border-radius:3px}
+@media(max-width:980px){.row{flex-direction:column}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Cloudi — Minimal Realistic MVP (для инвестора)</h1>
-  <div class="muted">Реалистичное демо: Kernel → Compute Matrix → AI Dispatcher → Elastic Scale → Cost Engine → Comparison</div>
+<div class="app" id="app">
+  <div class="header">
+    <div>
+      <div class="title" id="title">Cloudi — Full Cloud MVP (Complete)</div>
+      <div class="subtitle" id="subtitle">Interactive: Kernel • Smart-Packing • Elastic Scale • ML loop • FinOps • Storage • AI Serving • Monitoring • Security</div>
+    </div>
+    <div class="controls">
+      <select id="lang" class="input" onchange="setLang(this.value)">
+        <option value="en">EN</option><option value="ru">RU</option>
+      </select>
+      <button class="btn" onclick="preview()">Preview</button>
+      <button class="btn" onclick="startAll()">Start demo</button>
+    </div>
+  </div>
 
-  <!-- INPUT -->
-  <div class="row" style="margin-top:12px">
+  <!-- Top parameters -->
+  <div class="row" style="margin-top:14px">
     <div class="col card">
-      <label>Operations (кол-во операций)</label>
-      <input id="ops" type="number" value="1000000000" min="1" />
-      <div class="controls">
+      <label class="label" id="lbl_ops">Operations (ops)</label>
+      <input id="ops" class="input" type="number" value="1000000000" />
+      <div style="display:flex;gap:8px;margin-top:8px">
         <div style="flex:1">
-          <label>Node capacity (ops/sec)</label>
-          <input id="nodeCap" type="number" value="200000000" />
+          <label class="label" id="lbl_nodecap">Node capacity (ops/sec)</label>
+          <input id="nodeCap" class="input" type="number" value="200000000" />
         </div>
-        <div style="width:120px">
-          <label>Nodes / DC</label>
-          <input id="nodesPerDC" type="number" value="4" />
+        <div style="width:140px">
+          <label class="label" id="lbl_nodesdc">Nodes / DC</label>
+          <input id="nodesPerDC" class="input" type="number" value="4" />
         </div>
       </div>
-
-      <div class="controls" style="margin-top:8px">
+      <div style="display:flex;gap:8px;margin-top:8px">
         <div style="flex:1">
-          <label>Cloudi AI optimize (%)</label>
-          <input id="savePct" type="number" value="30" min="0" max="80" />
+          <label class="label" id="lbl_save">Cloudi AI optimization (%)</label>
+          <input id="savePct" class="input" type="number" value="30" min="0" max="90"/>
         </div>
-        <div style="width:120px">
-          <label>Markup ×</label>
-          <input id="markup" type="number" value="3" step="0.1" min="1" />
+        <div style="width:140px">
+          <label class="label" id="lbl_markup">Cloudi markup ×</label>
+          <input id="markup" class="input" type="number" value="3" step="0.1" min="1" />
         </div>
       </div>
 
-      <div style="margin-top:10px" class="controls">
-        <button onclick="startSimulation()">Старт симуляции</button>
-        <button onclick="previewNow()" style="background:#333">Обновить превью</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-ghost" onclick="resetDefaults()">Reset</button>
+        <button class="btn-ghost" onclick="toggleTheme()">Theme</button>
       </div>
 
-      <div style="margin-top:8px" class="small">Baseline-тест (короткий) запускается для доказательства честности — не нагружает устройство.</div>
+      <div style="margin-top:8px" class="small" id="note">Baseline microtest runs in browser (non-authoritative) to demonstrate honesty of numbers.</div>
     </div>
 
-    <!-- SUMMARY -->
     <div class="col card">
-      <div style="font-weight:700">Ключевая сводка</div>
-      <div class="small muted">Превью обновляется по кнопке "Обновить превью" или при симуляции</div>
-      <div class="kv"><div>Оптимальная нода (ops/sec)</div><div id="summ_nodeCap" class="right">—</div></div>
-      <div class="kv"><div>Nodes (raw)</div><div id="summ_nodesRaw" class="right">—</div></div>
-      <div class="kv"><div>Nodes (Cloudi)</div><div id="summ_nodesOpt" class="right">—</div></div>
-      <div class="kv"><div>Дата-центры</div><div id="summ_dcs" class="right">—</div></div>
-      <div class="kv"><div>Время обработки (Cloudi · raw)</div><div id="summ_time" class="right">—</div></div>
-      <div class="kv"><div>Стоимость / оп (Cloudi)</div><div id="summ_costOp" class="right">—</div></div>
-      <div style="margin-top:8px" class="controls">
-        <button onclick="copySummary()" style="background:#222">Копировать сводку</button>
-        <button onclick="downloadTxt()" style="background:#444">Экспорт .txt</button>
+      <div style="font-weight:800" id="quickTitle">Quick summary</div>
+      <div class="small muted" id="quickNote">Preview shows computed values</div>
+      <div style="margin-top:8px">
+        <div class="kv"><div>Node cap</div><div id="val_nodecap" class="right">—</div></div>
+        <div class="kv"><div>Nodes (raw)</div><div id="val_nodesraw" class="right">—</div></div>
+        <div class="kv"><div>Nodes (Cloudi)</div><div id="val_nodesopt" class="right">—</div></div>
+        <div class="kv"><div>Data centers</div><div id="val_dcs" class="right">—</div></div>
+        <div class="kv"><div>Processing time</div><div id="val_time" class="right">—</div></div>
+        <div class="kv"><div>Cost / op</div><div id="val_costop" class="right">—</div></div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button class="btn-ghost" onclick="copySummary()">Copy</button>
+          <button class="btn-ghost" onclick="downloadReport()">Download log</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Compute Matrix + Controls -->
-  <div class="row">
+  <!-- Big area: Left compute + right infra -->
+  <div class="row" style="margin-top:12px">
     <div class="col card">
-      <h3 style="margin:6px 0">Compute Matrix — разбиение и распределение</h3>
-      <div class="small muted">Kernel делит задачи на блоки; Dispatcher делает Smart-Packing; видна матрица распределения.</div>
-      <label>Block size (ops per block)</label>
-      <input id="blockSize" type="number" value="1000000" />
-      <div style="margin-top:8px" class="small muted">Пример: если ops=1e9 и block=1e6 → 1000 блоков.</div>
+      <h3>Compute Engine • Kernel & Smart-Packing</h3>
+      <div class="small muted">Kernel slices tasks into blocks; Dispatcher packs blocks into nodes using smart-packing (ML simulated).</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <div style="flex:1">
+          <label class="label">Block size (ops)</label>
+          <input id="blockSize" class="input" type="number" value="1000000" />
+        </div>
+        <div style="width:160px">
+          <label class="label">Node type</label>
+          <select id="nodeType" class="input">
+            <option value="vcpu">vCPU-standard</option>
+            <option value="vopt">vCPU-optimized</option>
+            <option value="hpc">HPC</option>
+            <option value="gpu">GPU-node</option>
+          </select>
+        </div>
+      </div>
 
-      <div style="margin-top:10px">
-        <button onclick="showComputeMatrix()" style="background:#0b63c6">Показать Matrix</button>
-        <button onclick="toggleML()" style="background:#0b9d58">ML loop: on/off</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" onclick="generateMatrix()">Generate Matrix</button>
+        <button class="btn-ghost" onclick="openPacking()">Packing details</button>
+        <button class="btn-ghost" id="mlBtn" onclick="toggleML()">Start ML loop</button>
       </div>
 
       <div id="matrixArea" style="margin-top:12px"></div>
-    </div>
 
-    <div class="col card">
-      <h3 style="margin:6px 0">Инфраструктура (визуализация)</h3>
-      <div id="dcArea" class="nodes"></div>
-      <div style="margin-top:8px" id="nodeStatus" class="small muted">—</div>
-      <div style="margin-top:8px">
-        <div style="background:#eef3fb;height:16px;border-radius:8px;overflow:hidden"><div id="progBar" style="height:100%;width:0;background:var(--ok);text-align:center;color:#fff;font-size:12px">0%</div></div>
-      </div>
-      <div style="margin-top:8px" class="small muted" id="eta">ETA: —</div>
-    </div>
-  </div>
-
-  <!-- Finance & Comparison -->
-  <div class="row" style="margin-top:12px">
-    <div class="col card">
-      <h3 style="margin:6px 0">Cost Control Engine</h3>
-      <div class="kv"><div>Стоимость ноды / мес</div><div id="nodeCost" class="right">$420</div></div>
-      <div class="kv"><div>Прочие расходы / мес</div><div id="otherCost" class="right">$980</div></div>
-      <div class="kv"><div>Итого / мес</div><div id="infraMonth" class="right">—</div></div>
-      <div class="kv"><div>Итого / год</div><div id="infraYear" class="right">—</div></div>
-      <div style="margin-top:8px">
-        <label>Комментарий</label>
-        <textarea id="costComment" rows="4">Cost engine рассчитывает cost/op = infra_month / (effectiveCap * nodes * seconds_per_month). Price = cost/op * markup.</textarea>
+      <div style="margin-top:10px">
+        <h4>Packing log</h4>
+        <div id="packLog" class="log">Packing log will appear here.</div>
       </div>
     </div>
 
     <div class="col card">
-      <h3 style="margin:6px 0">Сравнение (Cloudi vs AWS/GCP/Azure)</h3>
-      <table id="cmpTable"><tr><th>Platform</th><th class="right">Cost/op</th><th class="right">Price for volume</th><th class="right">Time (s)</th></tr></table>
+      <h3>Infrastructure & Elastic Scaling</h3>
+      <div class="small muted">Autoscale reacts to predicted load; nodes and DCs visualized.</div>
+      <div id="dcArea" class="nodesGrid" style="margin-top:8px"></div>
+      <div id="infraStatus" class="small muted" style="margin-top:8px">—</div>
       <div style="margin-top:8px">
-        <canvas id="chartCost" height="180"></canvas>
+        <div class="progressOuter"><div id="prog" class="progressInner">0%</div></div>
+        <div id="eta" class="small muted" style="margin-top:6px">ETA: —</div>
+      </div>
+      <div class="legend">
+        <div><div class="box" style="background:var(--ok)"></div><div class="small">busy</div></div>
+        <div><div class="box" style="background:var(--warn)"></div><div class="small">warn</div></div>
+        <div><div class="box" style="background:var(--danger)"></div><div class="small">error</div></div>
       </div>
     </div>
   </div>
 
-  <!-- API Examples, SLA and Security -->
+  <!-- Storage / AI / API -->
   <div class="row" style="margin-top:12px">
     <div class="col card">
-      <h3 style="margin:6px 0">B2B API (пример)</h3>
-      <div class="small muted">Пример запроса и ответа API, как для интеграции</div>
-      <label>Request (JSON)</label>
-      <textarea id="apiReq" rows="6">{
-  "task":"batch",
-  "ops":1000000000,
-  "priority":"normal"
-}</textarea>
-      <label style="margin-top:8px">Response (пример)</label>
-      <textarea id="apiResp" rows="6">{ "status":"accepted", "estimated_time_s":0.96, "nodes":4 }</textarea>
+      <h3>Storage • Buckets (S3-like)</h3>
+      <div class="small muted">Create buckets, upload pseudo files, cost/GB/month simulated.</div>
+      <div style="display:flex;gap:8px">
+        <input id="bucketName" class="input" placeholder="bucket-name" />
+        <button class="btn" onclick="createBucket()">Create</button>
+      </div>
+      <div id="bucketsArea" style="margin-top:10px"></div>
     </div>
 
     <div class="col card">
-      <h3 style="margin:6px 0">SLA & Security (симуляция)</h3>
-      <div class="small muted">Проверки: latency SLA, anomaly detector</div>
-      <div class="kv"><div>Latency SLA target</div><div id="sla" class="right"><b>≤ 1s</b></div></div>
-      <div class="kv"><div>Anomaly detected</div><div id="anomaly" class="right">false</div></div>
-      <div style="margin-top:8px"><button onclick="simulateAnomaly()" style="background:#f59e0b">Симулировать аномалию</button></div>
+      <h3>AI Serving • LLM endpoints (simulated)</h3>
+      <div class="small muted">Simulated endpoints, inference cost & latency, autoscaling GPU nodes.</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="aiPrompt" class="input" placeholder="Enter prompt..." />
+        <button class="btn" onclick="callAI()">Infer</button>
+      </div>
+      <div id="aiResp" style="margin-top:10px" class="small muted">Responses will appear here.</div>
+    </div>
+  </div>
+
+  <!-- FinOps & Comparison -->
+  <div class="row" style="margin-top:12px">
+    <div class="col card">
+      <h3>FinOps • Cost Control Engine</h3>
+      <div class="kv"><div>Node cost / month</div><div id="nodeCostVal" class="right">$420</div></div>
+      <div class="kv"><div>Other fixed / month</div><div id="otherCostVal" class="right">$980</div></div>
+      <div class="kv"><div>Total infra / month</div><div id="infraMonthVal" class="right">—</div></div>
+      <div class="kv"><div>Total infra / year</div><div id="infraYearVal" class="right">—</div></div>
+      <div style="margin-top:8px">
+        <label class="label">Comment</label>
+        <textarea id="finComment" class="input" rows="3">Cost engine calculates cost/op = infra_month / (effectiveCap * nodes * seconds_per_month).</textarea>
+      </div>
+    </div>
+
+    <div class="col card">
+      <h3>Comparison • AWS / GCP / Azure / NVIDIA</h3>
+      <div class="small muted">Dynamic cost & time comparison for same volume</div>
+      <table class="table" id="cmpTable"><tr><th>Platform</th><th class="right">Cost/op</th><th class="right">Price for volume</th><th class="right">Time (s)</th></tr></table>
+      <div style="margin-top:8px"><canvas id="cmpChart" height="160"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Monitoring & Security -->
+  <div class="row" style="margin-top:12px">
+    <div class="col card">
+      <h3>Monitoring • Metrics</h3>
+      <div class="small muted">p50/p95/p99, rps, node failures, heatmap</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1"><label class="label">p95 target (ms)</label><input id="p95" class="input" value="250" /></div>
+        <div style="flex:1"><label class="label">RPS</label><input id="rps" class="input" value="100000" /></div>
+      </div>
+      <div style="margin-top:8px"><button class="btn" onclick="generateMetrics()">Generate metrics</button></div>
+      <div id="metricsArea" style="margin-top:8px"></div>
+    </div>
+
+    <div class="col card">
+      <h3>Security • SLA / Anomaly</h3>
+      <div class="kv"><div>Latency SLA</div><div id="slaVal" class="right">≤ 1s</div></div>
+      <div class="kv"><div>Anomaly</div><div id="anomaly" class="right">false</div></div>
+      <div style="margin-top:8px"><button class="btn-ghost" onclick="simulateAnom()">Simulate anomaly</button><button class="btn-ghost" onclick="resolveAnom()">Resolve</button></div>
+      <div style="margin-top:8px"><h4>SLA log</h4><div id="slaLog" class="log">SLA/SEC events appear here.</div></div>
+    </div>
+  </div>
+
+  <!-- API Gateway -->
+  <div class="row" style="margin-top:12px">
+    <div class="col card">
+      <h3>API Gateway • Swagger-style</h3>
+      <div class="small muted">POST /compute/run, GET /status, POST /ai/query</div>
+      <label class="label">Request JSON</label>
+      <textarea id="apiReq" class="input" rows="5">{"task":"batch","ops":1000000000,"priority":"normal"}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" onclick="apiCall()">Send</button><button class="btn-ghost" onclick="downloadJSON()">Download JSON</button></div>
+      <label class="label" style="margin-top:8px">Response</label>
+      <textarea id="apiResp" class="input" rows="4">{"status":"idle"}</textarea>
+    </div>
+
+    <div class="col card">
+      <h3>ML / Training & Nodes usage</h3>
+      <canvas id="mlChart" height="140"></canvas>
+      <canvas id="nodesChart" height="140" style="margin-top:8px"></canvas>
     </div>
   </div>
 
   <!-- Log -->
-  <div style="margin-top:12px" class="card">
-    <h3 style="margin:6px 0">Лог (для инвестора/техников)</h3>
-    <div id="log" class="log">Готово — нажмите "Обновить превью" или "Старт симуляции".</div>
+  <div class="card" style="margin-top:12px">
+    <h3>Full technical log</h3>
+    <div id="fullLog" class="log">Ready — press Preview or Start demo.</div>
   </div>
 
-  <div style="text-align:center;margin-top:10px" class="small muted">Формулы: nodes_raw=ceil(ops/nodeCap). effectiveCap=nodeCap*(1+savePct/100). nodes_opt=ceil(ops/effectiveCap). time=ops/(effectiveCap*nodes_opt).</div>
+  <div class="footer">Formulas: nodes_raw = ceil(ops/nodeCap); effectiveCap = nodeCap*(1+savePct/100); nodes_opt = ceil(ops/effectiveCap); time = ops / (effectiveCap * nodes_opt).</div>
 </div>
 
 <script>
-/* ====== Минималистичный, реалистичный движок Cloudi (B) ====== */
+/* ========== Full Cloudi MVP script ========== */
 const SECONDS_PER_MONTH = 30*24*3600;
-const DEFAULT_NODE_COST = 420;
-const DEFAULT_OTHER_COST = 980;
-const COMPETITORS = {
-  AWS: { nodeCap:180_000_000, nodeCost:500 },
-  GCP: { nodeCap:190_000_000, nodeCost:480 },
-  Azure: { nodeCap:175_000_000, nodeCost:520 }
+const DEFAULTS = {
+  nodeCost:420, otherCost:980, nodesPerDC:4,
+  competitors:{
+    AWS:{nodeCap:180000000,nodeCost:500},
+    GCP:{nodeCap:190000000,nodeCost:480},
+    Azure:{nodeCap:175000000,nodeCost:520},
+    NVIDIA:{nodeCap:220000000,nodeCost:1200}
+  }
 };
+let LANG='en';
+const I18N={ en:{ start:'Start full simulation', preview:'Preview', mlStart:'Start ML loop', mlStop:'Stop ML loop' },
+            ru:{ start:'Старт полной симуляции', preview:'Превью', mlStart:'Запустить ML цикл', mlStop:'Остановить ML цикл' } };
 
-/* Utilities */
-function log(msg){ const el=document.getElementById('log'); el.textContent = new Date().toLocaleTimeString() + ' — ' + msg + '\n' + el.textContent; }
-function fmt(n){ return (typeof n==='number')? n.toLocaleString(): n; }
-function money(n){
-  if (n===0) return '$0.00';
-  if (Math.abs(n) < 1e-6) return n.toExponential(3);
-  return '$' + Number(n).toLocaleString(undefined,{maximumFractionDigits:6});
+/* Formatting */
+function fmt(n){ return typeof n==='number'? n.toLocaleString() : n; }
+function money(n){ if(n===0) return '$0.00'; if(Math.abs(n)<1e-6) return n.toExponential(3); return '$'+Number(n).toLocaleString(undefined,{maximumFractionDigits:6}); }
+function now(){ return new Date().toLocaleTimeString(); }
+function pushLog(msg){ const el=document.getElementById('fullLog'); el.textContent = `${now()} — ${msg}\n` + el.textContent; }
+
+/* Language */
+function setLang(l){ LANG=l; document.getElementById('mlBtn').textContent = I18N[l].mlStart; document.getElementById('title').textContent = l==='ru' ? 'Cloudi — Полный MVP (Комplet)' : 'Cloudi — Full Cloud MVP (Complete)'; }
+
+/* Read parameters */
+function readParams(){
+  return {
+    ops: Math.max(1, Number(document.getElementById('ops').value) || 1),
+    nodeCap: Math.max(1, Number(document.getElementById('nodeCap').value) || 200000000),
+    nodesPerDC: Math.max(1, Number(document.getElementById('nodesPerDC').value) || DEFAULTS.nodesPerDC),
+    savePct: Math.max(0, Math.min(90, Number(document.getElementById('savePct').value) || 30)),
+    markup: Math.max(1, Number(document.getElementById('markup').value) || 3),
+    blockSize: Math.max(1, Number(document.getElementById('blockSize').value) || 1000000),
+    nodeType: document.getElementById('nodeType').value
+  };
 }
 
-/* Preview calculator (light) */
-function previewNow(){
-  const ops = Math.max(1, Number(document.getElementById('ops').value));
-  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
-  const nodesPerDC = Math.max(1, Number(document.getElementById('nodesPerDC').value));
-  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
-  const markup = Math.max(1, Number(document.getElementById('markup').value));
-  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
-
-  // Raw and optimized nodes
-  const nodesRaw = Math.max(1, Math.ceil(ops / nodeCap));
-  const effectiveCap = nodeCap * (1 + savePct/100);
-  const nodesOpt = Math.max(1, Math.ceil(ops / effectiveCap));
-  const dcs = Math.ceil(nodesOpt / nodesPerDC);
-
-  const timeRaw = ops / (nodeCap * nodesRaw);
-  const timeOpt = ops / (effectiveCap * nodesOpt);
-
-  // infra cost
-  const infraMonth = nodesOpt * DEFAULT_NODE_COST + DEFAULT_OTHER_COST;
+/* Core compute */
+function compute(params){
+  const nodesRaw = Math.max(1, Math.ceil(params.ops / params.nodeCap));
+  const effectiveCap = params.nodeCap * (1 + params.savePct/100);
+  const nodesOpt = Math.max(1, Math.ceil(params.ops / effectiveCap));
+  const dcs = Math.ceil(nodesOpt / params.nodesPerDC);
+  const timeRaw = params.ops / (params.nodeCap * nodesRaw);
+  const timeOpt = params.ops / (effectiveCap * nodesOpt);
+  const infraMonth = nodesOpt * DEFAULTS.nodeCost + DEFAULTS.otherCost;
   const infraYear = infraMonth * 12;
   const opsPerMonth = effectiveCap * nodesOpt * SECONDS_PER_MONTH;
   const costPerOp = infraMonth / Math.max(1, opsPerMonth);
-  const pricePerOp = costPerOp * markup;
-  const totalPrice = pricePerOp * ops;
-
-  // fill summary
-  document.getElementById('summ_nodeCap').innerText = fmt(nodeCap);
-  document.getElementById('summ_nodesRaw').innerText = fmt(nodesRaw);
-  document.getElementById('summ_nodesOpt').innerText = fmt(nodesOpt);
-  document.getElementById('summ_dcs').innerText = fmt(dcs);
-  document.getElementById('summ_time').innerText = `${timeOpt.toFixed(6)} s (Cloudi) · raw ${timeRaw.toFixed(6)} s`;
-  document.getElementById('summ_costOp').innerText = pricePerOp < 1e-6? pricePerOp.toExponential(3) : money(pricePerOp);
-
-  document.getElementById('infraMonth').innerText = money(infraMonth);
-  document.getElementById('infraYear').innerText = money(infraYear);
-
-  // build DC visualization (static preview)
-  renderDCs(nodesOpt, nodesPerDC);
-
-  // build comparison table
-  buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice);
-
-  log(`Preview: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, save=${savePct}%, nodesOpt=${nodesOpt}, time=${timeOpt.toFixed(6)}s, price/op=${pricePerOp.toExponential(3)}`);
+  const pricePerOp = costPerOp * params.markup;
+  const totalPrice = pricePerOp * params.ops;
+  const blocks = Math.ceil(params.ops / params.blockSize);
+  return {nodesRaw,effectiveCap,nodesOpt,dcs,timeRaw,timeOpt,infraMonth,infraYear,costPerOp,pricePerOp,totalPrice,blocks};
 }
 
-/* Render DCs (static) */
-function renderDCs(nodesOpt, nodesPerDC){
-  const area = document.getElementById('dcArea');
-  area.innerHTML = '';
-  const dcs = Math.max(1, Math.ceil(nodesOpt / nodesPerDC));
-  let index=0;
-  for(let d=0; d<dcs; d++){
-    const dc = document.createElement('div'); dc.className='dc';
-    dc.innerHTML = `<div style="font-weight:700">DC ${d+1}</div>`;
-    for(let n=0;n<nodesPerDC;n++){
-      const node = document.createElement('div'); node.className='node';
-      if(index < nodesOpt) node.dataset.active='1'; else node.dataset.active='0';
-      dc.appendChild(node); index++;
-    }
+/* Preview */
+function preview(){
+  const p=readParams(); const r=compute(p);
+  document.getElementById('val_nodecap').innerText = fmt(p.nodeCap);
+  document.getElementById('val_nodesraw').innerText = fmt(r.nodesRaw);
+  document.getElementById('val_nodesopt').innerText = fmt(r.nodesOpt);
+  document.getElementById('val_dcs').innerText = fmt(r.dcs);
+  document.getElementById('val_time').innerText = `${r.timeOpt.toFixed(6)} s (Cloudi) · raw ${r.timeRaw.toFixed(6)} s`;
+  document.getElementById('val_costop').innerText = (Math.abs(r.pricePerOp)<1e-6)? r.pricePerOp.toExponential(3): money(r.pricePerOp);
+  document.getElementById('infraMonthVal').innerText = money(r.infraMonth);
+  document.getElementById('infraYearVal').innerText = money(r.infraYear);
+  renderDCs(r.nodesOpt,p.nodesPerDC); buildComparison(p,r);
+  pushLog(`Preview: ops=${fmt(p.ops)}, nodeCap=${fmt(p.nodeCap)}, save=${p.savePct}%, nodes=${r.nodesOpt}, time=${r.timeOpt.toFixed(6)}s, cost/op=${r.pricePerOp.toExponential(6)}`);
+}
+
+/* DC render */
+function renderDCs(nodes,nodesPerDC){
+  const area=document.getElementById('dcArea'); area.innerHTML='';
+  const dcs=Math.max(1,Math.ceil(nodes / nodesPerDC)); let idx=0;
+  for(let d=0;d<dcs;d++){
+    const dc=document.createElement('div'); dc.className='dc';
+    dc.innerHTML=`<div style="font-weight:700">DC ${d+1}</div>`;
+    for(let n=0;n<nodesPerDC;n++){ const node=document.createElement('div'); node.className='node'; if(idx < nodes){ node.dataset.active='1'; node.title='node-'+(idx+1);} else node.dataset.active='0'; dc.appendChild(node); idx++; }
     area.appendChild(dc);
   }
+  document.getElementById('infraStatus').innerText = `Rendered ${nodes} nodes across ${Math.ceil(nodes/nodesPerDC)} DCs`;
 }
 
-/* Build comparison (dynamic) */
-function buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice){
-  const table = document.getElementById('cmpTable');
-  // clear
-  while(table.rows.length>1) table.deleteRow(1);
-  // Cloudi
-  addCmpRow(table,'Cloudi', pricePerOp, totalPrice, timeOpt);
-  // competitors: compute nodes, cost/op, total, time
-  for(const [k,v] of Object.entries(COMPETITORS)){
-    const nodesC = Math.max(1, Math.ceil(ops / v.nodeCap));
-    const infraC = nodesC * v.nodeCost + DEFAULT_OTHER_COST;
-    const opsPerMonthC = v.nodeCap * nodesC * SECONDS_PER_MONTH;
-    const costPerOpC = infraC / Math.max(1, opsPerMonthC);
-    const pricePerOpC = costPerOpC * Number(document.getElementById('markup').value || 3);
-    const totalC = pricePerOpC * ops;
-    const timeC = ops / (v.nodeCap * nodesC);
-    addCmpRow(table, k, pricePerOpC, totalC, timeC);
-  }
-  // draw small chart cost
-  try{
-    drawCostChart();
-  }catch(e){}
+/* Matrix generation & packing */
+function generateMatrix(){
+  const p=readParams(); const r=compute(p);
+  const blocks=r.blocks; const perNodeLimitBlocks=Math.max(1,Math.floor((r.effectiveCap*0.9)/p.blockSize));
+  const nodesAssigned=[]; let rem=blocks;
+  while(rem>0){ const take=Math.min(perNodeLimitBlocks,rem); nodesAssigned.push(take); rem-=take; }
+  const area=document.getElementById('matrixArea'); area.innerHTML=`<div class="small">Blocks: ${blocks}, perNodeLimitBlocks: ${perNodeLimitBlocks}, nodesAssigned: ${nodesAssigned.length}</div>`;
+  const tbl=document.createElement('table'); tbl.className='table'; tbl.innerHTML='<tr><th>Node</th><th>Assigned blocks</th><th class="right">ops/node</th></tr>';
+  nodesAssigned.forEach((b,i)=>{ const r=tbl.insertRow(-1); r.insertCell(0).textContent='node-'+(i+1); r.insertCell(1).textContent=`${b} blocks`; r.insertCell(2).className='right'; r.cells[2].textContent = fmt(b * p.blockSize); pushPack(`Assigned ${b} blocks -> node-${i+1}`); });
+  area.appendChild(tbl); pushLog(`Compute Matrix generated: ${blocks} blocks into ${nodesAssigned.length} nodes (packing limit ${perNodeLimitBlocks} blocks/node).`);
 }
 
-/* add table row helper */
-function addCmpRow(table, name, costOp, total, time){
-  const r = table.insertRow(-1);
-  const c1 = r.insertCell(0); c1.textContent = name;
-  const c2 = r.insertCell(1); c2.className='right'; c2.textContent = (Math.abs(costOp)<1e-6)? costOp.toExponential(3) : money(costOp);
-  const c3 = r.insertCell(2); c3.className='right'; c3.textContent = money(total);
-  const c4 = r.insertCell(3); c4.className='right'; c4.textContent = time.toFixed(3);
-}
+/* Packing log */
+function pushPack(msg){ const el=document.getElementById('packLog'); el.textContent = `${now()} — ${msg}\n` + el.textContent; }
 
-/* Draw simple cost chart */
-let costChart=null;
-function drawCostChart(){
-  const labels=[]; const data=[];
-  const rows = document.getElementById('cmpTable').rows;
-  for(let i=1;i<rows.length;i++){
-    labels.push(rows[i].cells[0].textContent);
-    const v = Number(rows[i].cells[2].textContent.replace(/[^0-9.\-eE]/g,'')) || 0;
-    data.push(v);
-  }
-  const ctx = document.getElementById('chartCost').getContext('2d');
-  if(costChart) costChart.destroy();
-  costChart = new Chart(ctx, {type:'bar', data:{labels, datasets:[{label:'Total $',data, backgroundColor:['#0b63c6','#3b82f6','#60a5fa','#93c5fd']}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
-}
-
-/* Compute Matrix visualization (detailed) */
-function showComputeMatrix(){
-  const ops = Math.max(1, Number(document.getElementById('ops').value));
-  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
-  const blocks = Math.ceil(ops / blockSize);
-  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
-  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
-  const effectiveCap = nodeCap * (1 + savePct/100);
-
-  // assign blocks to nodes (smart packing): pack blocks into nodes until node capacity ~ 90%
-  const nodes = [];
-  const perNodeLimit = Math.floor(effectiveCap / blockSize); // how many blocks ideally per node
-  let remaining = blocks;
-  // greedy packing
-  while(remaining>0){
-    const take = Math.min(perNodeLimit, remaining);
-    nodes.push(take);
-    remaining -= take;
-  }
-
-  // render matrix: table with node rows and assigned blocks
-  const area = document.getElementById('matrixArea');
-  area.innerHTML = `<div class="small muted">Blocks: ${blocks}, blockSize=${blockSize} ops</div>`;
-  const table = document.createElement('table');
-  table.innerHTML = '<tr><th>Node</th><th>Assigned blocks</th><th class="right">blocks/node</th></tr>';
-  for(let i=0;i<nodes.length;i++){
-    const r = table.insertRow(-1);
-    r.insertCell(0).textContent = 'node-'+(i+1);
-    r.insertCell(1).textContent = `blocks ${nodes[i]} (ops ${nodes[i]*blockSize})`;
-    r.insertCell(2).className='right'; r.cells[2].textContent = nodes[i];
-  }
-  area.appendChild(table);
-  log(`Compute Matrix: ${blocks} blocks, perNodeLimit=${perNodeLimit}, nodesAssigned=${nodes.length}`);
-}
-
-/* ML loop simulation (improves savePct over iterations) */
-let mlRunning=false;
+/* ML loop */
+let mlRunning=false; let mlTimer=null;
 function toggleML(){
-  mlRunning = !mlRunning;
-  if(mlRunning){
-    log('ML loop started: optimizing savePct over time');
-    mlStep();
-  } else { log('ML loop stopped'); }
+  mlRunning = !mlRunning; document.getElementById('mlBtn').innerText = mlRunning ? I18N[LANG].mlStop : I18N[LANG].mlStart;
+  if(mlRunning){ mlTimer=setInterval(mlStep,3000); pushLog('ML loop started'); } else { clearInterval(mlTimer); pushLog('ML loop stopped'); }
 }
 function mlStep(){
-  if(!mlRunning) return;
-  const el = document.getElementById('savePct');
-  let v = Number(el.value);
-  if(v < 60){ v += 1; el.value = Math.round(v); log(`ML improved savePct -> ${v}%`); previewNow(); }
-  // schedule next
-  setTimeout(mlStep, 3000);
+  const el=document.getElementById('savePct'); let v=Number(el.value); if(v<60){ v = +(v + Math.max(0.5, v*0.02)).toFixed(2); el.value = Math.min(60,v); preview(); updateML(v); pushLog(`ML improved savePct -> ${el.value}%`); } 
 }
 
-/* Simulation run: full process with animation and step-by-step log */
-async function startSimulation(){
-  previewNow(); // ensure preview values
-  const ops = Math.max(1, Number(document.getElementById('ops').value));
-  const nodeCap = Math.max(1, Number(document.getElementById('nodeCap').value));
-  const nodesPerDC = Math.max(1, Number(document.getElementById('nodesPerDC').value));
-  const savePct = Math.max(0, Math.min(80, Number(document.getElementById('savePct').value)));
-  const markup = Math.max(1, Number(document.getElementById('markup').value));
-  const blockSize = Math.max(1, Number(document.getElementById('blockSize').value));
-
-  log(`Start simulation: ops=${fmt(ops)}, nodeCap=${fmt(nodeCap)}, save=${savePct}%, markup=${markup}x, block=${fmt(blockSize)}`);
-
-  // baseline microtest (safe)
-  const baseline = await runBaseline();
-  log(`Baseline measured: ${fmt(baseline)} ops/sec (client device). Using server nodeCap=${fmt(nodeCap)} for modeling.`);
-
-  // compute nodes
-  const nodesRaw = Math.max(1, Math.ceil(ops / nodeCap));
-  const effectiveCap = nodeCap * (1 + savePct/100);
-  const nodesOpt = Math.max(1, Math.ceil(ops / effectiveCap));
-  const dcs = Math.ceil(nodesOpt / nodesPerDC);
-
-  // time estimate
-  const timeOpt = ops / (effectiveCap * nodesOpt); // seconds
-  const visTime = Math.min(120, Math.max(0.02, timeOpt));
-
-  // infra cost
-  const infraMonth = nodesOpt * DEFAULT_NODE_COST + DEFAULT_OTHER_COST;
-  const infraYear = infraMonth * 12;
-  const opsPerMonth = effectiveCap * nodesOpt * SECONDS_PER_MONTH;
-  const costPerOp = infraMonth / Math.max(1, opsPerMonth);
-  const pricePerOp = costPerOp * markup;
-  const totalPrice = pricePerOp * ops;
-
-  // update summary UI
-  document.getElementById('summ_nodeCap').innerText = fmt(nodeCap);
-  document.getElementById('summ_nodesRaw').innerText = fmt(nodesRaw);
-  document.getElementById('summ_nodesOpt').innerText = fmt(nodesOpt);
-  document.getElementById('summ_dcs').innerText = fmt(dcs);
-  document.getElementById('summ_time').innerText = `${timeOpt.toFixed(6)} s (Cloudi) · raw ${ (ops/(nodeCap*nodesRaw)).toFixed(6) } s`;
-  document.getElementById('summ_costOp').innerText = pricePerOp < 1e-6 ? pricePerOp.toExponential(3) : money(pricePerOp);
-  document.getElementById('infraMonth').innerText = money(infraMonth);
-  document.getElementById('infraYear').innerText = money(infraYear);
-
-  // show matrix and packing
-  showComputeMatrix();
-
-  // render DCs and animate nodes (simulate processing)
-  renderDCs(nodesOpt, nodesPerDC);
-  const activeNodes = Array.from(document.querySelectorAll('.node')).filter(n=>n.dataset.active==='1' || n.dataset.active===undefined);
-  const totalActive = Math.max(1, activeNodes.length);
-  document.getElementById('nodeStatus').innerText = `Cloudi AI dispatcher distributing load across ${totalActive} nodes (smart packing).`;
-
-  // animate processing progress in steps equal to totalActive
-  const steps = totalActive;
-  const stepMs = Math.max(80, Math.round((visTime*1000) / steps));
-  let step = 0;
-  document.getElementById('progBar').style.width='0%'; document.getElementById('progBar').textContent='0%';
-  document.getElementById('eta').textContent = `ETA: ${visTime.toFixed(3)} s`;
-  const anim = setInterval(()=>{
-    const idx = step % totalActive;
-    activeNodes.forEach((el,i)=> el.classList.toggle('busy', i===idx));
-    const perc = Math.min(100, Math.round(((step+1)/steps)*100));
-    document.getElementById('progBar').style.width = perc + '%'; document.getElementById('progBar').textContent = perc + '%';
-    document.getElementById('eta').textContent = `ETA: ${Math.max(0, ((steps-step-1)*stepMs/1000)).toFixed(2)} s`;
-    step++;
-    if(step>=steps){
-      // finalize
-      setTimeout(()=>{
-        activeNodes.forEach(el=>el.classList.remove('busy'));
-        document.getElementById('progBar').style.width='100%'; document.getElementById('progBar').textContent='100%';
-        document.getElementById('eta').textContent = `Done in ${visTime.toFixed(3)} s`;
-        log(`Processing simulation finished in ${visTime.toFixed(6)} s (simulated).`);
-        log(`Calculated nodesOpt=${nodesOpt}, dcs=${dcs}, effectiveCap=${fmt(effectiveCap)}, infraMonth=${money(infraMonth)}`);
-        log(`Cost/op (Cloudi) = ${pricePerOp.toExponential(6)} USD ; Total price = ${money(totalPrice)}`);
-        // comparison table
-        buildComparison(ops, effectiveCap, nodesOpt, timeOpt, pricePerOp, totalPrice);
-        clearInterval(anim);
-      }, 250);
-    }
-  }, stepMs);
+/* ML chart */
+let mlChart=null, nodesChart=null, cmpChart=null;
+function initCharts(){
+  const ctxML=document.getElementById('mlChart').getContext('2d'); mlChart = new Chart(ctxML,{type:'line',data:{labels:[],datasets:[{label:'save% (Cloudi AI)',data:[],tension:0.2,borderColor:'#0b63c6',fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const ctxN=document.getElementById('nodesChart').getContext('2d'); nodesChart = new Chart(ctxN,{type:'line',data:{labels:[],datasets:[{label:'active nodes',data:[],tension:0.2,borderColor:'#16a34a',fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const ctxCmp=document.getElementById('cmpChart').getContext('2d'); cmpChart = new Chart(ctxCmp,{type:'bar',data:{labels:[],datasets:[{label:'Total $',data:[],backgroundColor:['#0b63c6','#3b82f6','#60a5fa','#93c5fd']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 }
 
-/* Baseline micro-run to show device is tested (non-authoritative) */
-function runBaseline(){
-  return new Promise(resolve=>{
-    const testOps = 200000;
-    const start = performance.now();
-    let s=0;
-    for(let i=0;i<testOps;i++) s += i%7;
-    const dur = (performance.now() - start)/1000;
-    const opsSec = Math.max(1, Math.round(testOps / Math.max(dur, 0.0001)));
-    log(`Baseline microtest: ${testOps} ops in ${dur.toFixed(3)} s -> ${fmt(opsSec)} ops/sec`);
-    resolve(opsSec);
+/* Update charts */
+function updateML(val){ if(!mlChart) initCharts(); mlChart.data.labels.push(new Date().toLocaleTimeString()); mlChart.data.datasets[0].data.push(Number(val)); if(mlChart.data.labels.length>40){ mlChart.data.labels.shift(); mlChart.data.datasets[0].data.shift(); } mlChart.update(); }
+function updateNodesChart(val){ if(!nodesChart) initCharts(); nodesChart.data.labels.push(new Date().toLocaleTimeString()); nodesChart.data.datasets[0].data.push(val); if(nodesChart.data.labels.length>40){ nodesChart.data.labels.shift(); nodesChart.data.datasets[0].data.shift(); } nodesChart.update(); }
+
+/* Start full simulation */
+async function startAll(){
+  initCharts(); preview();
+  const p=readParams(), r=compute(p);
+  pushLog(`Start full simulation: ops=${fmt(p.ops)}, nodeCap=${fmt(p.nodeCap)}, save=${p.savePct}%`);
+  const baseline = await baselineTest(); pushLog(`Baseline microtest: ${fmt(baseline)} ops/sec`);
+  // Predictive timeline
+  const steps=6; const timeline=[]; for(let i=0;i<steps;i++) timeline.push(0.7 + Math.random()*1.3);
+  pushLog(`Predicted load timeline: [${timeline.map(x=>x.toFixed(2)).join(', ')}]`);
+  // animate scaling
+  for(let i=0;i<timeline.length;i++){
+    const factor=timeline[i];
+    const nodesNeeded=Math.max(1, Math.ceil(r.nodesOpt * factor));
+    await animateScale(nodesNeeded);
+    updateNodesChart(nodesNeeded);
+    pushLog(`Step ${i+1}: factor=${factor.toFixed(2)}, nodesNeeded=${nodesNeeded}`);
+    await sleep(700);
+  }
+  pushLog(`Simulation complete. Final estimate time=${r.timeOpt.toFixed(6)} s, total price=${money(r.totalPrice)}`);
+}
+
+/* Animate scale */
+function animateScale(target){
+  return new Promise(res=>{
+    const nodes=Array.from(document.querySelectorAll('.node'));
+    nodes.forEach((n,i)=> n.classList.toggle('busy', i<target));
+    const perc=Math.min(100,Math.round((target / Math.max(1,nodes.length))*100));
+    document.getElementById('prog').style.width=perc+'%'; document.getElementById('prog').textContent=perc+'%';
+    document.getElementById('eta').textContent = `ETA: ~${(Math.random()*1+0.2).toFixed(2)} s`;
+    setTimeout(res,250);
   });
 }
 
-/* simulate anomaly (SLA) */
-function simulateAnomaly(){
-  document.getElementById('anomaly').innerText = 'true';
-  log('Anomaly simulated: elevated latency. Initiating auto-heal.');
-  // auto-heal: temporary add nodes
-  const nodes = document.querySelectorAll('.node');
-  nodes.forEach(n=> n.classList.add('busy'));
-  setTimeout(()=>{ nodes.forEach(n=> n.classList.remove('busy')); document.getElementById('anomaly').innerText='false'; log('Auto-heal complete.'); }, 3000);
+/* Baseline microtest */
+function baselineTest(){ return new Promise(resolve=>{ const ops=150000; const start=performance.now(); let s=0; for(let i=0;i<ops;i++) s+=i%11; const dur=(performance.now()-start)/1000; const opsSec=Math.max(1,Math.round(ops/Math.max(dur,0.0001))); resolve(opsSec); }); }
+
+/* Comparison build */
+function buildComparison(p,r){
+  const table=document.getElementById('cmpTable'); while(table.rows.length>1) table.deleteRow(1);
+  addCmpRow(table,'Cloudi (opt)', r.pricePerOp, r.totalPrice, r.timeOpt);
+  const labels=[]; const totals=[]; for(const [k,v] of Object.entries(DEFAULTS.competitors)){
+    const nodesC=Math.max(1,Math.ceil(p.ops / v.nodeCap)); const infraC=nodesC*v.nodeCost + DEFAULTS.otherCost; const opsPerMonthC=v.nodeCap*nodesC*SECONDS_PER_MONTH;
+    const costPerOpC=infraC/Math.max(1,opsPerMonthC); const pricePerOpC=costPerOpC * p.markup; const totalC=pricePerOpC * p.ops; const timeC=p.ops/(v.nodeCap*nodesC);
+    addCmpRow(table,k,pricePerOpC,totalC,timeC);
+    labels.push(k); totals.push(Number(totalC.toFixed(2)));
+  }
+  // update chart
+  if(!cmpChart) initCharts();
+  const labelsAll=['Cloudi',...Object.keys(DEFAULTS.competitors)]; cmpChart.data.labels = labelsAll; cmpChart.data.datasets[0].data = [Number(r.totalPrice.toFixed(2)), ...labels.map((l,i)=>totals[i])]; cmpChart.update();
 }
 
-/* copy & export */
-function copySummary(){
-  const s = [
-    'Cloudi summary:',
-    'ops: ' + document.getElementById('ops').value,
-    'nodeCap: ' + document.getElementById('nodeCap').value,
-    'nodes(Cloudi): ' + document.getElementById('summ_nodesOpt').innerText,
-    'dcs: ' + document.getElementById('summ_dcs').innerText,
-    'time: ' + document.getElementById('summ_time').innerText,
-    'cost/op: ' + document.getElementById('summ_costOp').innerText
-  ].join('\n');
-  navigator.clipboard?.writeText(s).then(()=> alert('Сводка скопирована'), ()=> alert('Не удалось скопировать'));
-}
-function downloadTxt(){
-  const text = document.getElementById('log').textContent;
-  const blob = new Blob([text], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='cloudi_log.txt'; a.click(); URL.revokeObjectURL(url);
-}
+/* Add row */
+function addCmpRow(table,name,costOp,total,time){ const r=table.insertRow(-1); r.insertCell(0).textContent=name; const c1=r.insertCell(1); c1.className='right'; c1.textContent=(Math.abs(costOp)<1e-6)? costOp.toExponential(3): money(costOp); const c2=r.insertCell(2); c2.className='right'; c2.textContent=money(total); const c3=r.insertCell(3); c3.className='right'; c3.textContent=time.toFixed(3); }
 
-/* init preview on load */
-window.addEventListener('load', ()=>{ previewNow(); log('MVP ready (minimal realistic).'); });
+/* Buckets storage */
+const BUCKETS={};
+function createBucket(){ const name=document.getElementById('bucketName').value.trim(); if(!name) return alert('Enter bucket name'); if(BUCKETS[name]) return alert('Bucket exists'); BUCKETS[name]=[]; renderBuckets(); pushLog(`Bucket created: ${name}`); }
+function renderBuckets(){ const area=document.getElementById('bucketsArea'); area.innerHTML=''; for(const [k,v] of Object.entries(BUCKETS)){ const div=document.createElement('div'); div.className='card'; div.style.marginBottom='8px'; div.innerHTML=`<div style="font-weight:700">${k}</div><div class="small muted">${v.length} objects • cost est ${(v.length*0.001).toFixed(4)} $/mo</div><div style="margin-top:6px"><button class="btn-ghost" onclick="uploadFake('${k}')">Upload fake file</button></div>`; area.appendChild(div); } }
+
+/* Upload fake */
+function uploadFake(bucket){ BUCKETS[bucket].push({name:'file_'+(BUCKETS[bucket].length+1),size:Math.round(Math.random()*1000)}); renderBuckets(); pushLog(`Uploaded fake file to ${bucket}`); }
+
+/* AI call (simulated LLM) */
+function callAI(){ const prompt=document.getElementById('aiPrompt').value || 'Hello'; const latency=120 + Math.random()*200; document.getElementById('aiResp').innerText = 'Processing...'; setTimeout(()=>{ const resp=`Simulated answer to: "${prompt}". (latency ${Math.round(latency)} ms)`; document.getElementById('aiResp').innerText = resp; pushLog(`AI inference: prompt="${prompt}", latency=${Math.round(latency)} ms`); }, latency); }
+
+/* Metrics generation */
+function generateMetrics(){ const p=readParams(); const r=compute(p); const p95=Number(document.getElementById('p95').value || 250); const rps=Number(document.getElementById('rps').value || 100000); const area=document.getElementById('metricsArea'); area.innerHTML=`<div class="small">p50: ${(p95*0.6).toFixed(1)} ms • p95: ${p95} ms • p99: ${(p95*1.6).toFixed(1)} ms • RPS: ${fmt(rps)}</div>`; pushLog(`Metrics generated: p95=${p95}ms, RPS=${rps}`); }
+
+/* Anomaly simulate */
+function simulateAnom(){ document.getElementById('anomaly').innerText='true'; document.getElementById('slaLog').textContent = `${now()} — anomaly: latency spike\n` + document.getElementById('slaLog').textContent; pushLog('Anomaly simulated. Auto-heal triggered.'); const nodes=document.querySelectorAll('.node'); nodes.forEach(n=> n.classList.add('busy','err')); setTimeout(()=>{ nodes.forEach(n=> n.classList.remove('err')); document.getElementById('anomaly').innerText='false'; pushLog('Auto-heal complete'); },2800); }
+function resolveAnom(){ document.getElementById('anomaly').innerText='false'; document.getElementById('slaLog').textContent = `${now()} — anomaly resolved\n` + document.getElementById('slaLog').textContent; pushLog('Anomaly resolved'); }
+
+/* API gateway simulate */
+function apiCall(){ try{ const req=JSON.parse(document.getElementById('apiReq').value); pushLog(`API request: ${JSON.stringify(req)}`); setTimeout(()=>{ const resp={status:'accepted',estimate_s:(Math.random()*1).toFixed(3),nodes:Math.floor(Math.random()*6)+1}; document.getElementById('apiResp').value = JSON.stringify(resp); pushLog(`API response: ${JSON.stringify(resp)}`); },600);}catch(e){ alert('Invalid JSON'); } }
+
+/* Download JSON */
+function downloadJSON(){ const p=readParams(); const r=compute(p); const obj={params:p,result:r,ts:new Date().toISOString()}; const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='cloudi_preview.json'; a.click(); URL.revokeObjectURL(url); }
+
+/* Utilities */
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function resetDefaults(){ document.getElementById('ops').value='1000000000'; document.getElementById('nodeCap').value='200000000'; document.getElementById('savePct').value='30'; document.getElementById('markup').value='3'; document.getElementById('blockSize').value='1000000'; preview(); pushLog('Reset defaults'); }
+function copySummary(){ const text=`Cloudi summary\nops: ${document.getElementById('ops').value}\nnodeCap: ${document.getElementById('nodeCap').value}\nsave%: ${document.getElementById('savePct').value}\nnodes: ${document.getElementById('val_nodesopt').innerText}\ntime: ${document.getElementById('val_time').innerText}\ncost/op: ${document.getElementById('val_costop').innerText}`; navigator.clipboard?.writeText(text).then(()=> alert('Summary copied')); }
+function downloadReport(){ const text=document.getElementById('fullLog').textContent; const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='cloudi_log.txt'; a.click(); URL.revokeObjectURL(url); }
+
+/* Init */
+window.addEventListener('load', ()=>{ setLang('en'); initCharts(); preview(); pushLog('Cloudi: full MVP ready'); });
+
+function initCharts(){ try{ if(typeof Chart!=='undefined'){ const ctx=document.getElementById('mlChart').getContext('2d'); window._mlChart = new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'save%',data:[],borderColor:'#0b63c6',fill:false}]},options:{responsive:true,maintainAspectRatio:false}}); const ctx2=document.getElementById('nodesChart').getContext('2d'); window._nodesChart=new Chart(ctx2,{type:'line',data:{labels:[],datasets:[{label:'nodes',data:[],borderColor:'#16a34a',fill:false}]},options:{responsive:true,maintainAspectRatio:false}}); const ctx3=document.getElementById('cmpChart').getContext('2d'); window._cmpChart=new Chart(ctx3,{type:'bar',data:{labels:[],datasets:[{label:'Total $',data:[],backgroundColor:['#0b63c6','#3b82f6','#60a5fa','#93c5fd']}]},options:{responsive:true,maintainAspectRatio:false}}); } }catch(e){ console.warn('Charts init failed',e); } }
+
+/* End script */
 </script>
 </body>
 </html>
