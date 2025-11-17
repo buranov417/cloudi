@@ -1,0 +1,40 @@
+:root{
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --accent: #0b63c6;
+  --ok: #16a34a;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --maxw: 1200px;
+}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:#0f172a}
+.app{max-width:var(--maxw);margin:18px auto;padding:16px}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.topbar h1{margin:0;font-size:20px}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:12px;margin-top:12px}
+.card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(2,6,23,0.04)}
+.card-narrow{width:320px}
+.wide{grid-column:1 / -1}
+.input{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eefb}
+.small-input{padding:6px;border-radius:6px;border:1px solid #e6eefb}
+.hrow{display:flex;gap:8px;margin-top:10px}
+.col{flex:1}
+.btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+.btn.ghost, .btn.ghost:hover{background:transparent;border:1px solid rgba(2,100,214,0.08);color:var(--muted)}
+.btn.ghost{padding:6px 10px}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eef3fb}
+.matrix{margin-top:8px}
+.dc-grid{display:flex;gap:8px;flex-wrap:wrap}
+.dc{width:120px;padding:8px;border-radius:8px;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid #e6eefb;text-align:center}
+.node{height:12px;background:#e9eef8;border-radius:6px;margin:6px 0;transition:background .15s}
+.node.busy{background:var(--ok)}
+.progressOuter{background:#eef3fb;height:16px;border-radius:8px;overflow:hidden;margin-top:8px}
+.progressInner{height:100%;background:var(--ok);width:0;color:#fff;text-align:center;line-height:16px;font-size:12px}
+.log{background:#081024;color:#e6f1ff;padding:8px;border-radius:6px;font-size:13px;max-height:280px;overflow:auto;white-space:pre-wrap}
+.table{width:100%;border-collapse:collapse;margin-top:8px}
+.table th,.table td{padding:6px;border-bottom:1px solid #eef3fb;font-size:13px;text-align:left}
+.footer{margin-top:18px;text-align:center;color:var(--muted)}
+@media (max-width:1100px){ .grid{grid-template-columns:1fr} .card-narrow{width:100%} }
