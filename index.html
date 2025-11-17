@@ -1,399 +1,399 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal Platform</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .tab-container {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .tab {
-            padding: 15px 30px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        .tab.active {
-            background: white;
-            border-bottom: 3px solid #667eea;
-            font-weight: bold;
-        }
-        .tab-content {
-            display: none;
-            padding: 30px;
-            min-height: 500px;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 5px;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .status {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
-        }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .loading { background: #d1ecf1; color: #0c5460; }
-        .camera-feed {
-            width: 100%;
-            max-width: 400px;
-            border: 2px solid #333;
-            border-radius: 10px;
-        }
-        .hidden { display: none; }
-        .code-block {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>gustok — короткие видео</title>
+<meta name="description" content="gustok — демонстрация коротких вертикальных видео (TikTok-style) для GitHub Pages." />
+<style>
+  :root{
+    --bg:#0b0b0c;
+    --muted: #bfc3c8;
+    --accent: #ff3250;
+    --glass: rgba(255,255,255,0.06);
+    --card-gap: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  html,body{
+    height:100%;
+    margin:0;
+    background:linear-gradient(180deg,#050507 0%, #0b0b0c 100%);
+    color:white;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Container: vertical feed with snap */
+  .feed {
+    height:100vh;
+    overflow-y:auto;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Each card is one viewport */
+  .card {
+    position:relative;
+    height:100vh;
+    width:100%;
+    scroll-snap-align: start;
+    display:flex;
+    align-items:flex-end;
+    justify-content:flex-start;
+    background: #000;
+  }
+
+  /* Video should cover screen like tiktok */
+  .card video{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+    width:auto;
+    height:100vh;
+    max-width:none;
+    object-fit:cover;
+    background:#000;
+    z-index:1;
+  }
+
+  /* Overlay with info on left */
+  .meta {
+    position:relative;
+    z-index:2;
+    padding:20px;
+    padding-bottom:40px;
+    max-width:65%;
+  }
+  .meta .user {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .avatar{
+    width:48px;height:48px;border-radius:50%;background:linear-gradient(45deg,#ff9a9e,#fad0c4);
+    display:inline-block;
+    flex:0 0 48px;
+  }
+  .user .name {font-weight:700}
+  .desc{color:var(--muted);margin-top:6px;line-height:1.3;font-size:15px;white-space:pre-wrap;}
+
+  /* Right-side vertical actions */
+  .actions {
+    position:relative;
+    z-index:2;
+    margin-left:auto;
+    padding:20px;
+    padding-bottom:40px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    align-items:center;
+  }
+  .action-btn {
+    width:56px;height:56px;border-radius:16px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--glass);backdrop-filter: blur(6px);
+    border:1px solid rgba(255,255,255,0.04);
+    color:white;font-weight:600; cursor:pointer;
+  }
+  .action-btn .label{display:block;font-size:12px;color:var(--muted);margin-top:6px;text-align:center}
+  .action-compact { font-size:13px; }
+
+  /* small ui top */
+  .topbar{
+    position:fixed;left:0;right:0;top:0;z-index:4;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;
+    background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.02));
+    border-bottom:1px solid rgba(255,255,255,0.02);
+  }
+  .logo{font-weight:800;letter-spacing:1px;color:var(--accent)}
+  .play-hint{font-size:14px;color:var(--muted)}
+
+  /* comment modal */
+  .modal {
+    position:fixed;left:0;right:0;bottom:0;z-index:6;background:linear-gradient(180deg,#0b0b0c,#070708);
+    border-top-left-radius:12px;border-top-right-radius:12px;padding:12px;box-shadow:0 -20px 40px rgba(0,0,0,0.6);
+    transform: translateY(110%); transition: transform 260ms ease;
+  }
+  .modal.open { transform: translateY(0%); }
+  .modal .close { float:right;color:var(--muted);cursor:pointer;font-size:18px }
+  .modal .comments { max-height:40vh; overflow:auto; margin-top:8px; color:var(--muted) }
+  .modal .add { display:flex; gap:8px; margin-top:10px }
+  .modal input { flex:1; padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:white }
+
+  /* responsive */
+  @media (min-width:900px){
+    .meta{max-width:55%}
+    .actions{padding-right:40px}
+  }
+  @media (max-width:420px){
+    .meta{max-width:60%;}
+    .avatar{width:44px;height:44px}
+    .action-btn{width:50px;height:50px;border-radius:14px}
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚀 Universal Multi-Tool Platform</h1>
-            <p>Комплексное решение для различных задач</p>
-        </header>
+  <div class="topbar">
+    <div class="logo">gustok</div>
+    <div class="play-hint">Листай вверх — чтобы смотреть следующее ▶</div>
+  </div>
 
-        <div class="tab-container">
-            <button class="tab active" onclick="openTab('crypto')">💰 Крипто-Инструменты</button>
-            <button class="tab" onclick="openTab('security')">🛡️ Безопасность</button>
-            <button class="tab" onclick="openTab('media')">📷 Медиа</button>
-            <button class="tab" onclick="openTab('network')">🌐 Сеть</button>
-            <button class="tab" onclick="openTab('developer')">💻 Разработка</button>
+  <main class="feed" id="feed">
+    <!-- Карточки: замените src на свои видео / poster -->
+    <article class="card" data-id="1" data-link="https://example.com/video/1">
+      <video muted playsinline loop preload="metadata" poster="https://via.placeholder.com/720x1280.png?text=Video+1">
+        <!-- заменить на рабочие mp4/ webm ссылки -->
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+      </video>
+      <div class="meta">
+        <div class="user">
+          <div class="avatar" aria-hidden="true"></div>
+          <div>
+            <div class="name">@user_one • <small style="color:var(--muted)">дн.назад</small></div>
+            <div style="font-size:13px;color:var(--muted)">Локация • 1.2K просмотров</div>
+          </div>
         </div>
+        <div class="desc">Первое тестовое видео. Описание и хештеги #gustok #demo</div>
+      </div>
+      <div class="actions" aria-hidden="true">
+        <div class="action-btn" data-action="like" title="Нравится">
+          <div>
+            ❤️
+            <div class="label action-compact" id="like-1">123</div>
+          </div>
+        </div>
+        <div class="action-btn" data-action="comment" title="Комменты">💬<div class="label action-compact">Коммент</div></div>
+        <div class="action-btn" data-action="share" title="Поделиться">🔗<div class="label action-compact">Поделится</div></div>
+      </div>
+    </article>
 
-        <!-- Крипто-Инструменты -->
-        <div id="crypto" class="tab-content active">
-            <h2>💰 Криптовалютные инструменты</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Мониторинг кошельков</h3>
-                    <input type="text" id="walletAddress" placeholder="BTC/ETH адрес">
-                    <button class="btn" onclick="checkWalletBalance()">Проверить баланс</button>
-                    <div id="walletStatus" class="status"></div>
-                </div>
-                <div class="card">
-                    <h3>Арбитраж</h3>
-                    <select id="exchange1">
-                        <option>Binance</option>
-                        <option>Bybit</option>
-                        <option>KuCoin</option>
-                    </select>
-                    <select id="exchange2">
-                        <option>Huobi</option>
-                        <option>OKX</option>
-                        <option>Gate.io</option>
-                    </select>
-                    <button class="btn" onclick="findArbitrage()">Найти арбитраж</button>
-                </div>
-                <div class="card">
-                    <h3>Генератор кошельков</h3>
-                    <button class="btn" onclick="generateWallet()">Сгенерировать BTC кошелек</button>
-                    <div id="walletResult" class="code-block"></div>
-                </div>
-            </div>
+    <article class="card" data-id="2" data-link="https://example.com/video/2">
+      <video muted playsinline loop preload="metadata" poster="https://via.placeholder.com/720x1280.png?text=Video+2">
+        <source src="https://samplelib.com/lib/preview/mp4/sample-5s.mp4" type="video/mp4">
+        Ваш браузер не поддерживает видео.
+      </video>
+      <div class="meta">
+        <div class="user">
+          <div class="avatar" aria-hidden="true" style="background:linear-gradient(45deg,#a18cd1,#fbc2eb)"></div>
+          <div>
+            <div class="name">@creator_two • <small style="color:var(--muted)">6 ч.</small></div>
+            <div style="font-size:13px;color:var(--muted)">Музыка • 9.1K</div>
+          </div>
         </div>
+        <div class="desc">Короткая петля 5с — можно заменить на своё видео</div>
+      </div>
+      <div class="actions" aria-hidden="true">
+        <div class="action-btn" data-action="like">❤️<div class="label action-compact" id="like-2">42</div></div>
+        <div class="action-btn" data-action="comment">💬<div class="label action-compact">Коммент</div></div>
+        <div class="action-btn" data-action="share">🔗<div class="label action-compact">Поделится</div></div>
+      </div>
+    </article>
 
-        <!-- Безопасность -->
-        <div id="security" class="tab-content">
-            <h2>🛡️ Инструменты безопасности</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Проверка пароля</h3>
-                    <input type="password" id="passwordCheck" placeholder="Введите пароль">
-                    <button class="btn" onclick="checkPasswordStrength()">Проверить надежность</button>
-                    <div id="passwordStrength" class="status"></div>
-                </div>
-                <div class="card">
-                    <h3>Генератор паролей</h3>
-                    <input type="number" id="passLength" value="12" min="8" max="32">
-                    <button class="btn" onclick="generatePassword()">Сгенерировать</button>
-                    <div id="generatedPassword" class="code-block"></div>
-                </div>
-                <div class="card">
-                    <h3>VPN статус</h3>
-                    <button class="btn" onclick="checkVPN()">Проверить анонимность</button>
-                    <div id="vpnStatus" class="status"></div>
-                </div>
-            </div>
+    <article class="card" data-id="3" data-link="https://example.com/video/3">
+      <video muted playsinline loop preload="metadata" poster="https://via.placeholder.com/720x1280.png?text=Video+3">
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm">
+        Ваш браузер не поддерживает видео.
+      </video>
+      <div class="meta">
+        <div class="user">
+          <div class="avatar" aria-hidden="true" style="background:linear-gradient(45deg,#ff9a9e,#fecfef)"></div>
+          <div>
+            <div class="name">@third • <small style="color:var(--muted)">1 д.</small></div>
+            <div style="font-size:13px;color:var(--muted)">Фоновая музыка • 780</div>
+          </div>
         </div>
+        <div class="desc">Тест #3 — поставьте свои ссылки на видео и постеры</div>
+      </div>
+      <div class="actions" aria-hidden="true">
+        <div class="action-btn" data-action="like">❤️<div class="label action-compact" id="like-3">8</div></div>
+        <div class="action-btn" data-action="comment">💬<div class="label action-compact">Коммент</div></div>
+        <div class="action-btn" data-action="share">🔗<div class="label action-compact">Поделится</div></div>
+      </div>
+    </article>
 
-        <!-- Медиа -->
-        <div id="media" class="tab-content">
-            <h2>📷 Медиа инструменты</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Доступ к камере</h3>
-                    <button class="btn" onclick="accessCamera('user')">Фронтальная камера</button>
-                    <button class="btn" onclick="accessCamera('environment')">Задняя камера</button>
-                    <video id="cameraFeed" class="camera-feed hidden" autoplay></video>
-                </div>
-                <div class="card">
-                    <h3>Запись экрана</h3>
-                    <button class="btn" onclick="startScreenRecord()">Начать запись</button>
-                    <button class="btn" onclick="stopScreenRecord()">Остановить</button>
-                    <video id="screenRecord" class="camera-feed hidden" controls></video>
-                </div>
-                <div class="card">
-                    <h3>Анализ изображений</h3>
-                    <input type="file" id="imageUpload" accept="image/*">
-                    <button class="btn" onclick="analyzeImage()">Анализировать</button>
-                </div>
-            </div>
-        </div>
+  </main>
 
-        <!-- Сеть -->
-        <div id="network" class="tab-content">
-            <h2>🌐 Сетевые инструменты</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Ping тест</h3>
-                    <input type="text" id="pingHost" placeholder="google.com">
-                    <button class="btn" onclick="pingHost()">Пинг</button>
-                    <div id="pingResult" class="status"></div>
-                </div>
-                <div class="card">
-                    <h3>Информация об IP</h3>
-                    <button class="btn" onclick="getIPInfo()">Получить IP данные</button>
-                    <div id="ipInfo" class="code-block"></div>
-                </div>
-                <div class="card">
-                    <h3>Сканирование портов</h3>
-                    <input type="text" id="scanHost" placeholder="192.168.1.1">
-                    <button class="btn" onclick="scanPorts()">Сканировать</button>
-                    <div id="scanResult" class="status"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Разработка -->
-        <div id="developer" class="tab-content">
-            <h2>💻 Инструменты разработчика</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>JSON форматтер</h3>
-                    <textarea id="jsonInput" rows="5" placeholder='{"key": "value"}'></textarea>
-                    <button class="btn" onclick="formatJSON()">Форматировать</button>
-                    <pre id="jsonOutput" class="code-block"></pre>
-                </div>
-                <div class="card">
-                    <h3>Генератор QR кодов</h3>
-                    <input type="text" id="qrText" placeholder="Текст для QR">
-                    <button class="btn" onclick="generateQR()">Создать QR</button>
-                    <canvas id="qrCanvas" class="hidden"></canvas>
-                </div>
-                <div class="card">
-                    <h3>Кодирование Base64</h3>
-                    <textarea id="base64Input" rows="3" placeholder="Текст для кодирования"></textarea>
-                    <button class="btn" onclick="encodeBase64()">Закодировать</button>
-                    <button class="btn" onclick="decodeBase64()">Декодировать</button>
-                    <div id="base64Result" class="code-block"></div>
-                </div>
-            </div>
-        </div>
+  <!-- Comment modal -->
+  <div class="modal" id="modal" role="dialog" aria-hidden="true">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <strong>Комментарии</strong>
+      <span class="close" id="modalClose">✖</span>
     </div>
+    <div class="comments" id="commentsList">
+      <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)">Нет комментариев — будь первым!</div>
+    </div>
+    <div class="add">
+      <input id="commentInput" placeholder="Написать комментарий..." />
+      <button id="sendComment" class="action-btn" style="min-width:72px">Отправить</button>
+    </div>
+  </div>
 
-    <script>
-        // Tab management
-        function openTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-            event.currentTarget.classList.add('active');
+<script>
+(function(){
+  const feed = document.getElementById('feed');
+  const cards = Array.from(document.querySelectorAll('.card'));
+  const likeCounts = {};
+  const modal = document.getElementById('modal');
+  const modalClose = document.getElementById('modalClose');
+  const commentsList = document.getElementById('commentsList');
+  const commentInput = document.getElementById('commentInput');
+  const sendComment = document.getElementById('sendComment');
+  let activeCardId = null;
+  const comments = {}; // simple in-memory store
+
+  // init likeCounts from DOM
+  cards.forEach(card=>{
+    const id = card.dataset.id;
+    const likeEl = document.getElementById('like-'+id);
+    likeCounts[id] = parseInt(likeEl?.textContent || '0',10) || 0;
+  });
+
+  // IntersectionObserver: play video when card is mostly visible
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const card = entry.target;
+      const video = card.querySelector('video');
+      if(entry.isIntersecting && entry.intersectionRatio > 0.6){
+        // pause other videos
+        document.querySelectorAll('.card video').forEach(v=>{ if(v !== video) { v.pause(); v.currentTime = 0 }});
+        video.play().catch(()=>{/* mute required on some browsers */});
+        activeCardId = card.dataset.id;
+      } else {
+        video.pause();
+      }
+    });
+  }, {threshold:[0.25,0.6,0.9]});
+
+  cards.forEach(c=>io.observe(c));
+
+  // actions: like/comment/share
+  document.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('.action-btn');
+    if(!btn) return;
+    const card = btn.closest('.card');
+    const id = card.dataset.id;
+    const action = btn.dataset.action;
+    if(action === 'like'){
+      likeCounts[id] = (likeCounts[id]||0) + 1;
+      const el = document.getElementById('like-'+id);
+      if(el) el.textContent = likeCounts[id];
+      // simple visual feedback
+      btn.animate([{transform:'scale(1)'},{transform:'scale(1.08)'},{transform:'scale(1)'}],{duration:220});
+    } else if(action === 'comment'){
+      openModal(id);
+    } else if(action === 'share'){
+      const link = card.dataset.link || location.href + '#video=' + id;
+      if(navigator.share){
+        try {
+          await navigator.share({title:'gustok video', text:'Смотри видео в gustok', url:link});
+        } catch(err){ /* user cancelled */ }
+      } else {
+        // fallback: copy
+        try{
+          await navigator.clipboard.writeText(link);
+          alert('Ссылка скопирована в буфер обмена');
+        }catch(e){
+          prompt('Скопируйте ссылку вручную:', link);
         }
+      }
+    }
+  });
 
-        // Crypto functions
-        async function checkWalletBalance() {
-            const address = document.getElementById('walletAddress').value;
-            showStatus('walletStatus', 'Проверка баланса...', 'loading');
-            
-            try {
-                // Симуляция проверки баланса
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                const balance = (Math.random() * 10).toFixed(8);
-                showStatus('walletStatus', `Баланс: ${balance} BTC`, 'success');
-            } catch (error) {
-                showStatus('walletStatus', 'Ошибка проверки', 'error');
-            }
-        }
+  // open modal for comments
+  function openModal(id){
+    activeCardId = id;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    renderComments(id);
+    // prevent feed scroll behind modal on mobile
+    document.body.style.overflow = 'hidden';
+  }
 
-        function generateWallet() {
-            const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-            let wallet = '1';
-            for (let i = 0; i < 33; i++) {
-                wallet += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            document.getElementById('walletResult').textContent = wallet;
-        }
+  modalClose.addEventListener('click', ()=>{ closeModal(); });
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
 
-        // Security functions
-        function checkPasswordStrength() {
-            const password = document.getElementById('passwordCheck').value;
-            let strength = 'Слабый';
-            let color = 'error';
-            
-            if (password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)) {
-                strength = 'Очень сильный';
-                color = 'success';
-            } else if (password.length >= 8) {
-                strength = 'Средний';
-                color = 'loading';
-            }
-            
-            showStatus('passwordStrength', `Надежность: ${strength}`, color);
-        }
+  // add comment
+  sendComment.addEventListener('click', ()=>{
+    const text = commentInput.value.trim();
+    if(!text) return;
+    const id = activeCardId || '1';
+    if(!comments[id]) comments[id] = [];
+    comments[id].push({text, at: new Date().toLocaleString()});
+    commentInput.value = '';
+    renderComments(id);
+  });
 
-        function generatePassword() {
-            const length = document.getElementById('passLength').value;
-            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-            let password = "";
-            for (let i = 0; i < length; i++) {
-                password += charset.charAt(Math.floor(Math.random() * charset.length));
-            }
-            document.getElementById('generatedPassword').textContent = password;
-        }
+  function renderComments(id){
+    commentsList.innerHTML = '';
+    const list = comments[id] || [];
+    if(list.length === 0){
+      commentsList.innerHTML = '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)">Нет комментариев — будь первым!</div>';
+      return;
+    }
+    list.slice().reverse().forEach(c=>{
+      const d = document.createElement('div');
+      d.style.padding = '8px 0';
+      d.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+      d.innerHTML = '<strong style="display:block;color:white">Гость</strong><div style="color:var(--muted);font-size:14px;margin-top:4px">'+escapeHtml(c.text)+'</div><div style="color:var(--muted);font-size:12px;margin-top:6px">'+c.at+'</div>';
+      commentsList.appendChild(d);
+    });
+  }
 
-        // Media functions
-        async function accessCamera(facingMode) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: facingMode }
-                });
-                const video = document.getElementById('cameraFeed');
-                video.srcObject = stream;
-                video.classList.remove('hidden');
-            } catch (error) {
-                alert('Ошибка доступа к камере: ' + error.message);
-            }
-        }
+  // escape small
+  function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
 
-        // Network functions
-        async function getIPInfo() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                document.getElementById('ipInfo').textContent = JSON.stringify({
-                    ip: data.ip,
-                    location: 'Определяется...',
-                    isp: 'Неизвестно'
-                }, null, 2);
-            } catch (error) {
-                document.getElementById('ipInfo').textContent = 'Ошибка получения IP';
-            }
-        }
+  // Simple keyboard controls: space to pause/play, arrows to navigate
+  window.addEventListener('keydown',(e)=>{
+    if(e.code === 'Space'){ e.preventDefault(); togglePlayCurrent(); }
+    if(e.code === 'ArrowDown'){ feed.scrollBy({top: window.innerHeight, left:0, behavior:'smooth'}); }
+    if(e.code === 'ArrowUp'){ feed.scrollBy({top: -window.innerHeight, left:0, behavior:'smooth'}); }
+  });
 
-        // Developer tools
-        function formatJSON() {
-            try {
-                const input = document.getElementById('jsonInput').value;
-                const parsed = JSON.parse(input);
-                document.getElementById('jsonOutput').textContent = JSON.stringify(parsed, null, 2);
-            } catch (error) {
-                document.getElementById('jsonOutput').textContent = 'Невалидный JSON';
-            }
-        }
+  function togglePlayCurrent(){
+    if(!activeCardId) return;
+    const card = document.querySelector('.card[data-id="'+activeCardId+'"]');
+    const v = card.querySelector('video');
+    if(v.paused) v.play(); else v.pause();
+  }
 
-        function encodeBase64() {
-            const input = document.getElementById('base64Input').value;
-            document.getElementById('base64Result').textContent = btoa(input);
-        }
+  // Mobile: allow swipe quick navigation (touch)
+  let touchStartY = 0;
+  let touchEndY = 0;
+  feed.addEventListener('touchstart', (e)=>{ touchStartY = e.changedTouches[0].clientY; }, {passive:true});
+  feed.addEventListener('touchend', (e)=>{
+    touchEndY = e.changedTouches[0].clientY;
+    const diff = touchStartY - touchEndY;
+    if(Math.abs(diff) > 60){
+      if(diff > 0) feed.scrollBy({top: window.innerHeight, behavior:'smooth'});
+      else feed.scrollBy({top: -window.innerHeight, behavior:'smooth'});
+    }
+  }, {passive:true});
 
-        function decodeBase64() {
-            const input = document.getElementById('base64Input').value;
-            try {
-                document.getElementById('base64Result').textContent = atob(input);
-            } catch (error) {
-                document.getElementById('base64Result').textContent = 'Ошибка декодирования';
-            }
-        }
+  // On load, scroll to top & play first visible video
+  window.addEventListener('load', ()=>{ window.scrollTo(0,0); /* observer handles play */ });
 
-        // Utility functions
-        function showStatus(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = `status ${type}`;
-            element.style.display = 'block';
-        }
+  // small helper: if a video element is tapped, toggle mute / play
+  document.querySelectorAll('.card video').forEach(v=>{
+    v.addEventListener('click', ()=>{ if(v.paused) v.play(); else v.pause(); });
+    v.addEventListener('dblclick', ()=>{
+      // like on double tap
+      const card = v.closest('.card');
+      const id = card.dataset.id;
+      likeCounts[id] = (likeCounts[id]||0) + 1;
+      const el = document.getElementById('like-'+id);
+      if(el) el.textContent = likeCounts[id];
+    });
+  });
 
-        // Initialize with some demo data
-        document.getElementById('walletAddress').value = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
-        document.getElementById('jsonInput').value = '{"name":"demo","data":[1,2,3]}';
-    </script>
+})();
+</script>
 </body>
 </html>
