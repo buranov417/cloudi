@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>inspect.ai — Demo Dashboard</title>
+  <title>inspect.ai — Demo Dashboard (Mobile Ready)</title>
   <style>
     body{font-family:Arial,Helvetica,sans-serif;background:#0f1724;color:#e6eef6;margin:0;padding:0}
     .header{padding:20px;text-align:center;background:#071429}
@@ -20,8 +20,8 @@
   <div class="container">
     <div class="card">
       <h3>Run test request</h3>
-      <label>API URL</label>
-      <input id="apiUrl" value="https://inspect-ai.onrender.com/check"/>
+      <label>API URL (для имитации)</label>
+      <input id="apiUrl" value="LOCAL"/>
       <label>API Key</label>
       <input id="apiKey" value="DEMO-KEY-123"/>
       <label>Synthetic payload (JSON)</label>
@@ -33,30 +33,34 @@
       <pre id="result">No result yet.</pre>
     </div>
   </div>
+
 <script>
 async function run(){
-  const url = document.getElementById("apiUrl").value.trim();
-  const key = document.getElementById("apiKey").value.trim();
-  let payload = {};
-  try { payload = JSON.parse(document.getElementById("payload").value); } catch(e){ alert("Invalid JSON"); return; }
-  document.getElementById("result").innerText = "Requesting...";
   try {
-    const r = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type":"application/json","X-API-Key": key},
-      body: JSON.stringify(payload)
-    });
-    const text = await r.text();
-    try {
-      const json = JSON.parse(text);
-      document.getElementById("result").innerText = JSON.stringify(json, null, 2);
-    } catch(e) {
-      document.getElementById("result").innerText = text;
-    }
+    let payload = {};
+    try { payload = JSON.parse(document.getElementById("payload").value); } catch(e){ alert("Invalid JSON"); return; }
+
+    // ---- Локальная эмуляция сервера ----
+    let score = 0.1 + 0.4*(payload.rps/100) + 0.4*(payload.requests_per_min/100);
+    if(score > 1) score = 1;
+
+    let action = "ALLOW";
+    if(score >= 0.6) action = "REVIEW";
+    if(score >= 0.85) action = "BLOCK";
+
+    const response = {
+      risk_score: parseFloat(score.toFixed(2)),
+      action: action,
+      explanation: "Local simulated model based on input numbers"
+    };
+
+    document.getElementById("result").innerText = JSON.stringify(response, null, 2);
+
   } catch(err) {
     document.getElementById("result").innerText = "Error: " + err;
   }
 }
 </script>
+
 </body>
 </html>
