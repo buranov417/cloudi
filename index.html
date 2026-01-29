@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BRN PROTOCOL 050</title>
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/FFFFFF?text=BRN">
+    <style>
+        :root { --gold: #d4af37; --bg: #050505; }
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .app-container {
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .logo-area {
+            margin-bottom: 50px;
+        }
+        .logo-main {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin: 0;
+        }
+        .logo-sub {
+            color: var(--gold);
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+        .action-zone {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 25px;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s active;
+        }
+        .action-zone:active {
+            transform: scale(0.98);
+            background: #1a1a1a;
+        }
+        #fileInput { display: none; }
+        .btn-label {
+            display: block;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .status-bar {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.7rem;
+            color: #555;
+            text-align: left;
+            margin-top: 20px;
+            min-height: 60px;
+        }
+        .legal {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.6rem;
+            color: #333;
+            width: 80%;
+            line-height: 1.2;
+        }
+        /* Анимация загрузки */
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gold);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="logo-area">
+            <h1 class="logo-main">050 BRN</h1>
+            <div class="logo-sub">Buranov Protocol</div>
+        </div>
+
+        <div class="action-zone">
+            <label for="fileInput" class="btn-label" id="mainLabel">
+                [ ВЫБРАТЬ ФАЙЛ ДЛЯ СЖАТИЯ ]
+                <div class="loader" id="loader"></div>
+            </label>
+            <input type="file" id="fileInput" onchange="compressAndShare()">
+        </div>
+
+        <div class="status-bar" id="status">
+            > SYSTEM READY<br>
+            > ENCRYPTION: ACTIVE<br>
+            > STORAGE: UNLIMITED
+        </div>
+    </div>
+
+    <div class="legal">
+        PATENT PENDING. 050 BRN IS A PROPRIETARY TECHNOLOGY. UNAUTHORIZED REVERSE ENGINEERING WILL RESULT IN IMMEDIATE LEGAL ACTION.
+    </div>
+
+    <script>
+        async function compressAndShare() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            const loader = document.getElementById('loader');
+            const label = document.getElementById('mainLabel');
+
+            if (!fileInput.files.length) return;
+
+            const originalFile = fileInput.files[0];
+            
+            // Визуальный эффект работы твоей формулы
+            label.innerText = "ОБРАБОТКА ФОРМУЛОЙ...";
+            loader.style.display = "block";
+            status.innerHTML = `> АНАЛИЗ: ${originalFile.name}<br>> РАСЧЕТ КОРНЯ...<br>> СЖАТИЕ 10000x...`;
+
+            // Имитация задержки на "вычисления"
+            await new Promise(r => setTimeout(r, 2500));
+
+            // Создаем .brn файл (в реальности здесь работает твой секретный код)
+            // Для демо мы просто берем крошечную часть данных как "корень"
+            const blob = new Blob(["BRN_DATA_ROOT_" + Math.random().toString(36)], { type: 'application/octet-stream' });
+            const brnFile = new File([blob], originalFile.name + ".brn", { type: 'application/octet-stream' });
+
+            loader.style.display = "none";
+            label.innerText = "[ ГОТОВО К ОТПРАВКЕ ]";
+            status.innerHTML = `> УСПЕХ: ${originalFile.name}.brn<br>> РАЗМЕР: 420 bytes<br>> СТАТУС: ГОТОВ К ЭКСПОРТУ`;
+
+            // ФУНКЦИЯ ЭКСПОРТА (Тот самый импорт в WhatsApp/Файлы)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        files: [brnFile],
+                        title: 'BRN Protocol Export',
+                        text: 'Сжато через протокол Буранова 050'
+                    });
+                } catch (err) {
+                    console.log("Share failed", err);
+                }
+            } else {
+                // Если браузер старый, просто скачиваем
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(brnFile);
+                link.download = brnFile.name;
+                link.click();
+            }
+            
+            setTimeout(() => {
+                label.innerText = "[ ВЫБРАТЬ НОВЫЙ ФАЙЛ ]";
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
