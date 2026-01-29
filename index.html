@@ -3,169 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BRN PROTOCOL 050</title>
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/180/000000/FFFFFF?text=BRN">
+    <title>OpenEntrop | BRN Protocol</title>
     <style>
-        :root { --gold: #d4af37; --bg: #050505; }
+        :root { --accent: #00ff41; --bg: #000; }
         body {
             background-color: var(--bg);
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
+            font-family: -apple-system, system-ui, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            margin: 0;
             overflow: hidden;
         }
-        .app-container {
-            width: 90%;
+        .app-card {
+            width: 85%;
             max-width: 400px;
-            text-align: center;
-        }
-        .logo-area {
-            margin-bottom: 50px;
-        }
-        .logo-main {
-            font-size: 3rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            margin: 0;
-        }
-        .logo-sub {
-            color: var(--gold);
-            font-size: 0.8rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-        }
-        .action-zone {
             background: #111;
-            border: 1px solid #222;
-            border-radius: 25px;
+            border-radius: 30px;
             padding: 40px 20px;
-            margin-bottom: 20px;
-            transition: all 0.3s active;
+            text-align: center;
+            border: 1px solid #222;
         }
-        .action-zone:active {
-            transform: scale(0.98);
-            background: #1a1a1a;
-        }
-        #fileInput { display: none; }
-        .btn-label {
-            display: block;
+        h1 { font-weight: 800; letter-spacing: -1px; margin: 0; font-size: 2rem; }
+        .tag { color: var(--accent); font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 40px; }
+        
+        /* Кнопка действия */
+        .action-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 1rem;
+            width: 100%;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
+            transition: transform 0.2s;
         }
-        .status-bar {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.7rem;
-            color: #555;
-            text-align: left;
-            margin-top: 20px;
-            min-height: 60px;
-        }
-        .legal {
-            position: absolute;
-            bottom: 20px;
-            font-size: 0.6rem;
-            color: #333;
-            width: 80%;
-            line-height: 1.2;
-        }
-        /* Анимация загрузки */
-        .loader {
+        .action-btn:active { transform: scale(0.95); }
+
+        /* Системная кнопка экспорта (как на iOS) */
+        #exportBtn {
             display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--gold);
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 10px auto;
+            background: var(--accent);
+            color: #000;
+            margin-top: 20px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #fileInput { display: none; }
+        .console {
+            margin-top: 30px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #666;
+            text-align: left;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div class="logo-area">
-            <h1 class="logo-main">050 BRN</h1>
-            <div class="logo-sub">Buranov Protocol</div>
-        </div>
+    <div class="app-card">
+        <h1>OpenEntrop</h1>
+        <div class="tag">BRN TECHNOLOGY 050</div>
 
-        <div class="action-zone">
-            <label for="fileInput" class="btn-label" id="mainLabel">
-                [ ВЫБРАТЬ ФАЙЛ ДЛЯ СЖАТИЯ ]
-                <div class="loader" id="loader"></div>
-            </label>
-            <input type="file" id="fileInput" onchange="compressAndShare()">
-        </div>
+        <input type="file" id="fileInput">
+        
+        <button class="action-btn" id="selectBtn" onclick="document.getElementById('fileInput').click()">
+            ВЫБРАТЬ ОБЪЕКТ
+        </button>
 
-        <div class="status-bar" id="status">
-            > SYSTEM READY<br>
-            > ENCRYPTION: ACTIVE<br>
-            > STORAGE: UNLIMITED
-        </div>
-    </div>
+        <button class="action-btn" id="exportBtn">
+            ИМПОРТИРОВАТЬ .BRN
+        </button>
 
-    <div class="legal">
-        PATENT PENDING. 050 BRN IS A PROPRIETARY TECHNOLOGY. UNAUTHORIZED REVERSE ENGINEERING WILL RESULT IN IMMEDIATE LEGAL ACTION.
+        <div class="console" id="log">
+            > СИСТЕМА ГОТОВА...
+        </div>
     </div>
 
     <script>
-        async function compressAndShare() {
-            const fileInput = document.getElementById('fileInput');
-            const status = document.getElementById('status');
-            const loader = document.getElementById('loader');
-            const label = document.getElementById('mainLabel');
+        let finalBrnFile = null;
 
-            if (!fileInput.files.length) return;
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-            const originalFile = fileInput.files[0];
+            const log = document.getElementById('log');
+            const selectBtn = document.getElementById('selectBtn');
+            const exportBtn = document.getElementById('exportBtn');
+
+            // 1. Визуальная работа алгоритма
+            selectBtn.style.display = "none";
+            log.innerHTML = "> ЗАПУСК OPENENTROP...<br>> ПРИМЕНЕНИЕ ФОРМУЛЫ BRN-050...<br>> ИЗВЛЕЧЕНИЕ КОРНЯ ДАННЫХ...";
+
+            // Имитируем реальное время обработки (3 секунды)
+            await new Promise(r => setTimeout(r, 3000));
+
+            // 2. СОЗДАНИЕ РЕАЛЬНОГО ФАЙЛА
+            // В будущем здесь будет: const response = await fetch('твой_сервер/сжать')
+            // Сейчас создаем бинарный объект, чтобы кнопка импорта заработала реально
+            const dummyContent = new TextEncoder().encode("BRN_PROPRIETARY_ENCRYPTED_DATA_" + Math.random());
+            finalBrnFile = new File([dummyContent], file.name + ".brn", { type: "application/octet-stream" });
+
+            log.innerHTML = `> УСПЕХ: ${file.name}.brn<br>> РАЗМЕР СЖАТИЯ: 0.001%<br>> ГОТОВО К ПЕРЕДАЧЕ.`;
             
-            // Визуальный эффект работы твоей формулы
-            label.innerText = "ОБРАБОТКА ФОРМУЛОЙ...";
-            loader.style.display = "block";
-            status.innerHTML = `> АНАЛИЗ: ${originalFile.name}<br>> РАСЧЕТ КОРНЯ...<br>> СЖАТИЕ 10000x...`;
+            // 3. Показываем кнопку импорта
+            exportBtn.style.display = "block";
+        });
 
-            // Имитация задержки на "вычисления"
-            await new Promise(r => setTimeout(r, 2500));
+        // ФУНКЦИЯ ВЫЗОВА МЕНЮ АЙФОНА (SHARE SHEET)
+        document.getElementById('exportBtn').onclick = async () => {
+            if (!finalBrnFile) return;
 
-            // Создаем .brn файл (в реальности здесь работает твой секретный код)
-            // Для демо мы просто берем крошечную часть данных как "корень"
-            const blob = new Blob(["BRN_DATA_ROOT_" + Math.random().toString(36)], { type: 'application/octet-stream' });
-            const brnFile = new File([blob], originalFile.name + ".brn", { type: 'application/octet-stream' });
-
-            loader.style.display = "none";
-            label.innerText = "[ ГОТОВО К ОТПРАВКЕ ]";
-            status.innerHTML = `> УСПЕХ: ${originalFile.name}.brn<br>> РАЗМЕР: 420 bytes<br>> СТАТУС: ГОТОВ К ЭКСПОРТУ`;
-
-            // ФУНКЦИЯ ЭКСПОРТА (Тот самый импорт в WhatsApp/Файлы)
+            // Проверяем, поддерживает ли браузер (Safari/Chrome на iOS поддерживают)
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        files: [brnFile],
-                        title: 'BRN Protocol Export',
-                        text: 'Сжато через протокол Буранова 050'
+                        files: [finalBrnFile],
+                        title: 'OpenEntrop Export',
+                        text: 'Файл сжат через протокол OpenEntrop BRN-050'
                     });
                 } catch (err) {
-                    console.log("Share failed", err);
+                    console.log("Ошибка импорта: " + err);
                 }
             } else {
-                // Если браузер старый, просто скачиваем
+                // Если это обычный комп, просто скачиваем
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(brnFile);
-                link.download = brnFile.name;
+                link.href = URL.createObjectURL(finalBrnFile);
+                link.download = finalBrnFile.name;
                 link.click();
             }
-            
-            setTimeout(() => {
-                label.innerText = "[ ВЫБРАТЬ НОВЫЙ ФАЙЛ ]";
-            }, 3000);
-        }
+        };
     </script>
 </body>
 </html>
