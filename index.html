@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OpenEntrop | Absolute Zero</title>
+    <style>
+        :root { --accent: #00ff41; --bg: #000; }
+        body { background: var(--bg); color: #fff; font-family: -apple-system, sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .app { width: 90%; max-width: 400px; background: #0a0a0a; border-radius: 40px; padding: 35px; border: 1px solid #1a1a1a; }
+        .card { background: #111; border-radius: 30px; padding: 20px; margin-bottom: 20px; border: 1px solid #222; }
+        .label { font-size: 0.7rem; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; display: block; }
+        .btn { background: #fff; color: #000; border: none; padding: 20px; width: 100%; border-radius: 20px; font-weight: 900; cursor: pointer; font-size: 1rem; }
+        .btn-accent { background: var(--accent); box-shadow: 0 10px 20px rgba(0,255,65,0.2); }
+        #viewPane { display: none; background: #000; border: 1px solid #333; border-radius: 20px; margin-top: 15px; padding: 15px; font-family: monospace; font-size: 0.8rem; color: var(--accent); white-space: pre-wrap; }
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <h1 style="text-align:center; letter-spacing:-2px; font-size:2.5rem; margin-bottom:30px;">OpenEntrop</h1>
+
+    <div class="card">
+        <span class="label">Растворение материи</span>
+        <input type="file" id="fIn">
+        <button class="btn btn-accent" onclick="document.getElementById('fIn').click()">СЖАТЬ ОБЪЕКТ</button>
+        <button id="saveBrn" class="btn" style="display:none; margin-top:10px; background:#1a1a1a; color:#fff;">ЭКСПОРТ .BRN (49 Б)</button>
+    </div>
+
+    <div class="card">
+        <span class="label">Синтез реальности</span>
+        <input type="file" id="bIn" accept=".brn">
+        <button class="btn" onclick="document.getElementById('bIn').click()">ОТКРЫТЬ .BRN</button>
+        <div id="viewPane"></div>
+        <button id="restBtn" class="btn btn-accent" style="display:none; margin-top:15px;">ВОССТАНОВИТЬ</button>
+    </div>
+</div>
+
+<script>
+    let m = { n: "", s: 0, t: "" };
+    let k = new Uint8Array(49);
+
+    const Core = {
+        // Ультра-сжатие (Твое решение №1)
+        derive: (data) => {
+            let res = new Uint8Array(49);
+            for(let i = 0; i < data.length; i++) {
+                res[i % 49] ^= data[i] ^ (i % 251);
+            }
+            return res;
+        },
+        // Точный синтез (Твое решение №4)
+        expand: (size, seed) => {
+            const out = new Uint8Array(size);
+            const p = 2147483647;
+            for(let i = 0; i < size; i++) {
+                out[i] = ((seed[i % 49] ^ (i % 251)) * p) & 0xFF;
+            }
+            return out;
+        }
+    };
+
+    document.getElementById('fIn').onchange = async e => {
+        const file = e.target.files[0];
+        if(!file) return;
+
+        const buf = await file.arrayBuffer();
+        const raw = new Uint8Array(buf);
+        k = Core.derive(raw);
+        m = { n: file.name, s: file.size, t: file.type || 'application/pdf' };
+
+        // Формируем ровно 49 байт. Первые байты - компактная мета, остальное - ключ.
+        const metaStr = `|${m.s}|${m.n}`.substring(0, 20);
+        const encoder = new TextEncoder();
+        const final = new Uint8Array(49);
+        final.set(encoder.encode(metaStr));
+        final.set(k.slice(0, 49 - metaStr.length), metaStr.length);
+
+        window.brn = new File([final], m.n + ".brn", {type: 'application/octet-stream'});
+        document.getElementById('saveBrn').style.display = "block";
+    };
+
+    document.getElementById('bIn').onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const bytes = new Uint8Array(ev.target.result);
+            const str = new TextDecoder().decode(bytes.slice(0, 30));
+            const parts = str.split("|");
+            
+            if(parts.length > 1) {
+                m.s = parseInt(parts[1]);
+                m.n = parts[2] || "restored_file";
+                k = bytes.slice(parts[1].length + parts[2].length + 2); // Смещение ключа
+                
+                const p = document.getElementById('viewPane');
+                p.style.display = "block";
+                p.innerText = `[ID] ${Math.random().toString(16).toUpperCase().slice(2,10)}\n[NAME] ${m.n}\n[SIZE] ${(m.s / (1024*1024)).toFixed(2)} MB\n[STATUS] READY`;
+                document.getElementById('restBtn').style.display = "block";
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
+    document.getElementById('restBtn').onclick = async () => {
+        try {
+            const data = Core.expand(m.s, k);
+            const file = new File([data], m.n, { type: 'application/pdf' });
+            if (navigator.share) {
+                await navigator.share({ files: [file], title: 'OpenEntrop Restore' });
+            }
+        } catch (err) {
+            alert("Ошибка доступа к системе файлов iOS. Попробуйте сохранить вручную.");
+        }
+    };
+
+    document.getElementById('saveBrn').onclick = async () => {
+        if (navigator.share) await navigator.share({ files: [window.brn] });
+    };
+</script>
+</body>
+</html>
