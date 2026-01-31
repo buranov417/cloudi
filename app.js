@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-
-export default function App() {
+function App() {
   // State management
   const [screen, setScreen] = useState("login");
   const [currentUser, setCurrentUser] = useState(null);
@@ -1712,3 +1709,4 @@ const initialDuas = [
     timestamp: new Date("2026-01-30").toISOString(),
   },
 ];
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
