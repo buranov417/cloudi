@@ -1,7 +1,6 @@
 // App_ready_for_GitHub_full.js
 const { useState, useEffect } = React;
 
-
 function App() {
   // State management
   const [screen, setScreen] = useState("login");
