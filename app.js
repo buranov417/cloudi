@@ -1,3 +1,7 @@
+// App_ready_for_GitHub_full.js
+const { useState, useEffect } = React;
+
+
 function App() {
   // State management
   const [screen, setScreen] = useState("login");
@@ -1709,4 +1713,6 @@ const initialDuas = [
     timestamp: new Date("2026-01-30").toISOString(),
   },
 ];
+
+// ReactDOM render
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
