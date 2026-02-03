@@ -22,7 +22,7 @@ genBtn.addEventListener("click", async () => {
     form.append("admin_key", ADMIN_KEY);
     form.append("company", company);
 
-    await fetch("http://localhost:8000/generate_node", {
+    await fetch("https://nodideasai-lilz.vercel.app/", {
         method: "POST",
         body: form
     });
