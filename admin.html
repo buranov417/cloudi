@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Админка</h1>
+        <p>Вы авторизованы как администратор.</p>
+
+        <h3>Список IP-нод</h3>
+        <ul id="ipList"></ul>
+
+        <input type="text" id="newIP" placeholder="Введите IP">
+        <button id="addIP">Добавить IP</button>
+
+        <h3>Оптимизация</h3>
+        <button id="runOptimization">Запустить оптимизацию</button>
+        <pre id="result"></pre>
+
+        <button id="logoutBtn">Выйти</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
