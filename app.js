@@ -1,73 +1,33 @@
 const ADMIN_KEY = "673ziyada";
 
-// ---------- Вход ----------
-function login() {
-    const input = document.getElementById("code")?.value;
-    if(input === ADMIN_KEY){
-        localStorage.setItem("auth","1");
-        window.location.href = "admin.html";
-    } else {
-        alert("Неверный ключ!");
-    }
+const nodeListEl = document.getElementById("nodeList");
+const companyInput = document.getElementById("company");
+const genBtn = document.getElementById("genNode");
+
+async function fetchNodes() {
+    const res = await fetch(`http://localhost:8000/nodes?admin_key=${ADMIN_KEY}`);
+    const data = await res.json();
+    nodeListEl.innerHTML = "";
+    data.forEach(node => {
+        const li = document.createElement("li");
+        li.textContent = `${node.node_id} | ${node.company} | ${node.status} | Optim: ${node.optimization}% Steps: ${node.steps_reduced}%`;
+        nodeListEl.appendChild(li);
+    });
 }
 
-// Кнопка Enter
-document.getElementById("enterBtn")?.addEventListener("click", login);
+genBtn.addEventListener("click", async () => {
+    const company = companyInput.value.trim();
+    if(!company) return alert("Введите компанию");
+    const form = new FormData();
+    form.append("admin_key", ADMIN_KEY);
+    form.append("company", company);
 
-// Enter на клавиатуре
-document.getElementById("code")?.addEventListener("keypress", function(e){
-    if(e.key === "Enter") login();
+    await fetch("http://localhost:8000/generate_node", {
+        method: "POST",
+        body: form
+    });
+    companyInput.value = "";
+    fetchNodes();
 });
 
-// ---------- Админка ----------
-if(window.location.pathname.endsWith("admin.html")){
-    // Проверка авторизации
-    if(localStorage.getItem("auth") !== "1"){
-        window.location.href = "index.html";
-    }
-
-    const ipListEl = document.getElementById("ipList");
-    const newIP = document.getElementById("newIP");
-    const addIPBtn = document.getElementById("addIP");
-    const resultEl = document.getElementById("result");
-    const runBtn = document.getElementById("runOptimization");
-    const logoutBtn = document.getElementById("logoutBtn");
-
-    let ips = JSON.parse(localStorage.getItem("ips") || "[]");
-
-    function renderIPs(){
-        ipListEl.innerHTML = "";
-        ips.forEach(ip => {
-            const li = document.createElement("li");
-            li.textContent = ip;
-            ipListEl.appendChild(li);
-        });
-    }
-
-    addIPBtn.addEventListener("click", ()=>{
-        const val = newIP.value.trim();
-        if(val && !ips.includes(val)){
-            ips.push(val);
-            localStorage.setItem("ips", JSON.stringify(ips));
-            renderIPs();
-            newIP.value = "";
-        }
-    });
-
-    runBtn.addEventListener("click", ()=>{
-        // Генерация тестового JSON
-        const json = ips.map(ip => ({
-            ip,
-            optimization: (Math.random()*30+20).toFixed(2) + "%",
-            stepsReduced: (Math.random()*50+10).toFixed(2) + "%"
-        }));
-        resultEl.textContent = JSON.stringify(json, null, 2);
-    });
-
-    logoutBtn.addEventListener("click", ()=>{
-        localStorage.removeItem("auth");
-        window.location.href = "index.html";
-    });
-
-    renderIPs();
-}
+fetchNodes();
