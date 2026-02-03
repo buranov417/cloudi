@@ -2,16 +2,32 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Админка</title>
+  <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <script src="script.js"></script>
-  <div class="container">
-    <h1>Админская панель</h1>
-    <p>Ты внутри! Код доступа действителен.</p>
-    <button onclick="logout()">Выйти</button>
-  </div>
+
+<h1>Infrastructure Control Panel</h1>
+
+<div class="panel">
+  <input id="company" placeholder="Company name">
+  <button onclick="generate()">Generate IP</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Company</th>
+      <th>IP</th>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="list"></tbody>
+</table>
+
+<button class="logout" onclick="logout()">Logout</button>
+
+<script src="app.js"></script>
 </body>
 </html>
