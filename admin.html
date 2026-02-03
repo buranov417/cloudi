@@ -8,21 +8,12 @@
 <body>
     <div class="dashboard-container">
         <h1>Админка</h1>
-        <p>Вы авторизованы как администратор.</p>
+        <input type="text" id="company" placeholder="Название компании">
+        <button id="genNode">Создать Node</button>
 
-        <h3>Список IP-нод</h3>
-        <ul id="ipList"></ul>
-
-        <input type="text" id="newIP" placeholder="Введите IP">
-        <button id="addIP">Добавить IP</button>
-
-        <h3>Оптимизация</h3>
-        <button id="runOptimization">Запустить оптимизацию</button>
-        <pre id="result"></pre>
-
-        <button id="logoutBtn">Выйти</button>
+        <h3>Список Node</h3>
+        <ul id="nodeList"></ul>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
