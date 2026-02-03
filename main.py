@@ -8,7 +8,7 @@ import uvicorn
 app = FastAPI(title="MinSky Optimization Hub")
 
 # --- Админский ключ ---
-ADMIN_KEY = "minsky_super_secret_key"
+ADMIN_KEY = "673ziyada"
 
 # --- Хранилище клиентов ---
 clients = {}  # client_id: {"ip":..., "key":...}
