@@ -1,26 +1,67 @@
-// Код доступа
-const ADMIN_CODE = "673ziyada";
+const ADMIN_KEY = "673ziyada";
 
-// Вход
+// auth
 function login() {
-  const pass = document.getElementById("pass").value;
-  if(pass === ADMIN_CODE) {
-    localStorage.setItem("admin", "true");
-    window.location.href = "admin.html";
-  } else {
-    alert("Неверный код");
-  }
+  if (document.getElementById("code").value === ADMIN_KEY) {
+    localStorage.setItem("auth", "1");
+    location.href = "dashboard.html";
+  } else alert("Wrong key");
 }
 
-// Выход
 function logout() {
-  localStorage.removeItem("admin");
-  window.location.href = "index.html";
+  localStorage.clear();
+  location.href = "index.html";
 }
 
-// Защита админки
-if(window.location.pathname.includes("admin.html")) {
-  if(localStorage.getItem("admin") !== "true") {
-    window.location.href = "index.html";
-  }
+// protect
+if (location.pathname.includes("dashboard")) {
+  if (!localStorage.getItem("auth")) location.href = "index.html";
 }
+
+// data
+let data = JSON.parse(localStorage.getItem("ips") || "[]");
+
+function generateIP() {
+  return `${rand()}.${rand()}.${rand()}.${rand()}`;
+}
+function rand() { return Math.floor(Math.random() * 255); }
+
+function generate() {
+  const company = document.getElementById("company").value;
+  if (!company) return alert("Company name");
+
+  data.push({
+    company,
+    ip: generateIP(),
+    key: Math.random().toString(36).substring(2, 14)
+  });
+
+  save();
+}
+
+function remove(i) {
+  data.splice(i, 1);
+  save();
+}
+
+function save() {
+  localStorage.setItem("ips", JSON.stringify(data));
+  render();
+}
+
+function render() {
+  const tbody = document.getElementById("list");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  data.forEach((x, i) => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${x.company}</td>
+        <td>${x.ip}</td>
+        <td>${x.key}</td>
+        <td><button onclick="remove(${i})">Revoke</button></td>
+      </tr>`;
+  });
+}
+
+render();
