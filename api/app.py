@@ -1,19 +1,22 @@
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-import os
+from pathlib import Path
 
 app = FastAPI()
 
-# Подключаем статические файлы
-app.mount("/static", StaticFiles(directory="frontend"), name="static")
+# Абсолютный путь к корню проекта
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Главная страница
-@app.get("/")
-def read_index():
-    return FileResponse("frontend/index.html")
+# Путь к frontend
+FRONTEND_DIR = BASE_DIR / "frontend"
 
-# Проверка API
-@app.get("/api/status")
-def status():
-    return {"status": "NodIdeas API is running"}
+if not FRONTEND_DIR.exists():
+    raise RuntimeError(f"Frontend directory not found: {FRONTEND_DIR}")
+
+# Подключаем фронтенд
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
+# API health check
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
