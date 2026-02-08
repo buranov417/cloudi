@@ -7,14 +7,14 @@ app = FastAPI()
 # Абсолютный путь к корню проекта
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Путь к frontend
-FRONTEND_DIR = BASE_DIR / "frontend"
+# Путь к fronted
+FRONTEND_DIR = BASE_DIR / "fronted"
 
 if not FRONTEND_DIR.exists():
     raise RuntimeError(f"Frontend directory not found: {FRONTEND_DIR}")
 
-# Подключаем фронтенд
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+# Подключаем фронтед
+app.mount("/", StaticFiles(directory=FRONTED_DIR, html=True), name="fronted")
 
 # API health check
 @app.get("/api/health")
