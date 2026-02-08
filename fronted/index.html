@@ -1,40 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>NodIdeas Admin Panel</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>NodIdeas AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ВАЖНО: только /static -->
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div id="login-screen">
-  <h2>Admin Login</h2>
-  <input type="password" id="access-code" placeholder="Enter Access Code">
-  <button id="login-btn">Login</button>
-  <p id="login-error" style="color:red;"></p>
-</div>
 
-<div id="admin-panel" style="display:none;">
-  <h1>NodIdeas Admin Panel</h1>
+    <div class="app">
+        <h1>NodIdeas AI</h1>
+        <p>Интеллектуальная оптимизация бизнес-процессов</p>
 
-  <section>
-    <h2>Statistics</h2>
-    <pre id="stats"></pre>
-    <button id="refresh-stats">Refresh Stats</button>
-  </section>
+        <button id="ping-btn">Проверить API</button>
+        <pre id="result"></pre>
+    </div>
 
-  <section>
-    <h2>Generate Access Token</h2>
-    <button id="generate-token-btn">Generate Token</button>
-    <p id="new-token"></p>
-  </section>
-
-  <section>
-    <h2>Manage Steps</h2>
-    <div id="steps"></div>
-    <button id="refresh-steps">Refresh Steps</button>
-  </section>
-</div>
-
-<script src="app.js"></script>
+    <!-- ВАЖНО: только /static -->
+    <script src="/static/app.js"></script>
 </body>
 </html>
